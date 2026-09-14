@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.idea/
+
+results/*.csv
+results/*.json
+plots/*.png
+profiling/*.qdrep
+profiling/*.nsys-rep
+profiling/*.ncu-rep
+profiling/*.sqlite

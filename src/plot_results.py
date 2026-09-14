@@ -36,14 +36,14 @@ def save_latency_plot(data: pd.DataFrame, output_dir: Path) -> None:
 def save_memory_plot(data: pd.DataFrame, output_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(7, 4.5))
     data = data.copy()
-    data["peak_memory_mb"] = data["peak_memory_bytes"] / (1024**2)
+    data["peak_memory_mb"] = data["memory_allocated_bytes"] / (1024**2)
     for method, group in data.groupby("method"):
         group = group.sort_values("seq_len")
         ax.plot(group["seq_len"], group["peak_memory_mb"], marker="o", label=method)
     ax.set_xscale("log", base=2)
     ax.set_xlabel("Sequence length")
-    ax.set_ylabel("Peak allocated GPU memory (MiB)")
-    ax.set_title("Peak GPU memory vs sequence length")
+    ax.set_ylabel("Recorded allocated memory (MiB)")
+    ax.set_title("Recorded memory vs sequence length")
     ax.grid(True, which="both", alpha=0.25)
     ax.legend()
     fig.tight_layout()
@@ -52,14 +52,15 @@ def save_memory_plot(data: pd.DataFrame, output_dir: Path) -> None:
 
 
 def save_speedup_plot(data: pd.DataFrame, output_dir: Path) -> None:
-    flash = data[data["method"] == "flash"].sort_values("seq_len")
+    compared = data[data["method"] != "standard"].sort_values("seq_len")
+    compared_label = compared["method"].iloc[0] if not compared.empty else "optimized"
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.plot(flash["seq_len"], flash["speedup_over_standard"], marker="o", color="tab:green")
+    ax.plot(compared["seq_len"], compared["speedup_over_standard"], marker="o", color="tab:green")
     ax.axhline(1.0, color="black", linewidth=1, linestyle=":")
     ax.set_xscale("log", base=2)
     ax.set_xlabel("Sequence length")
     ax.set_ylabel("Speedup over standard attention")
-    ax.set_title("FlashAttention speedup vs sequence length")
+    ax.set_title(f"{compared_label.upper()} speedup vs sequence length")
     ax.grid(True, which="both", alpha=0.25)
     fig.tight_layout()
     fig.savefig(output_dir / "speedup_vs_sequence_length.png", dpi=200)

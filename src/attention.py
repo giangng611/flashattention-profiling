@@ -92,3 +92,22 @@ def flash_attention(
         dropout_p=0.0,
         is_causal=causal,
     )
+
+
+def sdpa_attention(
+    q: torch.Tensor,
+    k: torch.Tensor,
+    v: torch.Tensor,
+    *,
+    causal: bool = False,
+) -> torch.Tensor:
+    """Run PyTorch SDPA with the backend selected by the current device."""
+
+    return F.scaled_dot_product_attention(
+        q,
+        k,
+        v,
+        attn_mask=None,
+        dropout_p=0.0,
+        is_causal=causal,
+    )

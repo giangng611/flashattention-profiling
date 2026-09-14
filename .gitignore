@@ -6,10 +6,10 @@ venv/
 env/
 .idea/
 
-results/*.csv
-results/*.json
-plots/*.png
-profiling/*.qdrep
-profiling/*.nsys-rep
-profiling/*.ncu-rep
-profiling/*.sqlite
+results/**/*.csv
+results/**/*.json
+plots/**/*.png
+profiling/**/*.qdrep
+profiling/**/*.nsys-rep
+profiling/**/*.ncu-rep
+profiling/**/*.sqlite

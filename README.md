@@ -89,6 +89,14 @@ torch.nn.functional.scaled_dot_product_attention
 
 with the FlashAttention backend forced when available.
 
+For the CUDA baseline requested by Qingchen, the benchmark records three paths:
+
+- `standard`: explicit matmul, softmax, matmul
+- `sdpa_auto`: PyTorch SDPA with automatic backend selection
+- `flash_forced`: PyTorch SDPA with FlashAttention forced where supported
+
+If a backend is unsupported for a configuration, the benchmark records the failure in the CSV instead of silently dropping the run.
+
 On Mac MPS, the comparison target is also PyTorch SDPA, but with the backend available on Apple MPS. I will label this result as `sdpa`, not `flash`, because it is not CUDA FlashAttention.
 
 Both paths use the same `q`, `k`, and `v` tensors and the same non-causal attention semantics.
@@ -161,6 +169,11 @@ plots/peak_memory_vs_sequence_length.png
 plots/speedup_vs_sequence_length.png
 ```
 
+For the UGA CUDA server workflow, see:
+
+- [CUDA_SERVER_RUNBOOK.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_SERVER_RUNBOOK.md)
+- [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NEXT_REPORT_TEMPLATE.md)
+
 ## Methodological Notes
 
 For CUDA, timing uses CUDA events and explicit synchronization. This is more appropriate for GPU kernels than CPU wall-clock timing because CUDA kernel launches are asynchronous.
@@ -207,4 +220,4 @@ flashattention-profiling/
 
 ## Current Status
 
-The repository is ready for local Mac/MPS testing and later CUDA testing. The next concrete step is to run the MPS benchmark locally, inspect the CSV and plots, and then repeat the experiment on an NVIDIA GPU machine when one is available.
+The repository is ready for local Mac/MPS testing and CUDA testing. The next concrete step is to access the UGA CUDA server, run the CUDA smoke test, then run the full CUDA baseline for Qingchen's next report.

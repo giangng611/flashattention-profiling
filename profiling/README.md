@@ -63,3 +63,5 @@ ncu -o profiling/seq4096_flash python3 src/benchmark_attention.py --seq-lengths 
 ```
 
 Use profiler results to explain the benchmark, not as a separate pile of numbers.
+
+For the UGA CUDA server workflow, see `CUDA_SERVER_RUNBOOK.md`.

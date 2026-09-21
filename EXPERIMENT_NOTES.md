@@ -138,7 +138,12 @@ These require profiler data or a CUDA run before making stronger claims.
 ## Next Steps
 
 1. Run the same benchmark on a CUDA-capable NVIDIA GPU.
-2. Compare CUDA `standard` vs CUDA FlashAttention backend.
+2. Compare CUDA `standard`, `sdpa_auto`, and `flash_forced`.
 3. Recreate the latency, memory, and speedup plots from CUDA data.
 4. Profile two representative sequence lengths, likely 512 and 4096.
 5. Use profiler metrics to separate measured facts from explanations.
+
+Qingchen's next requested report should include CUDA results, exact environment and reproduction steps, the most significant performance pattern or limitation, and a preliminary research problem with a testable hypothesis. I added:
+
+- `CUDA_SERVER_RUNBOOK.md`
+- `NEXT_REPORT_TEMPLATE.md`

@@ -1,4 +1,4 @@
-"""Benchmark standard attention against PyTorch SDPA or FlashAttention."""
+"""Benchmark standard attention against PyTorch SDPA and FlashAttention."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import statistics
 import sys
 import time
 from pathlib import Path
-from typing import Callable
+from typing import Callable, NamedTuple
 
 try:
     import torch
@@ -24,6 +24,12 @@ from attention import flash_attention, sdpa_attention, standard_attention
 AttentionFn = Callable[..., torch.Tensor]
 
 
+class MethodSpec(NamedTuple):
+    name: str
+    backend: str
+    fn: AttentionFn
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seq-lengths", nargs="+", type=int, default=[128, 256, 512, 1024, 2048, 4096])
@@ -35,7 +41,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dtype", choices=["float16", "bfloat16"], default="float16")
     parser.add_argument("--device", choices=["auto", "cuda", "mps", "cpu"], default="auto")
     parser.add_argument("--causal", action="store_true")
-    parser.add_argument("--allow-sdpa-auto", action="store_true", help="Use PyTorch SDPA even if flash cannot be forced.")
     parser.add_argument("--output", type=Path, default=Path("results/attention_benchmark.csv"))
     parser.add_argument("--metadata-output", type=Path, default=Path("results/environment_metadata.json"))
     parser.add_argument("--seed", type=int, default=0)
@@ -83,6 +88,21 @@ def memory_allocated(device: torch.device) -> int | None:
     if device.type == "mps":
         return int(torch.mps.current_allocated_memory())
     return None
+
+
+def error_row(name: str, backend: str, error: Exception) -> dict[str, object]:
+    return {
+        "method": name,
+        "backend": backend,
+        "status": "failed",
+        "error": f"{type(error).__name__}: {error}",
+        "mean_latency_ms": None,
+        "median_latency_ms": None,
+        "min_latency_ms": None,
+        "max_latency_ms": None,
+        "std_latency_ms": None,
+        "memory_allocated_bytes": None,
+    }
 
 
 def dtype_from_name(name: str) -> torch.dtype:
@@ -153,8 +173,7 @@ def make_inputs(
 
 
 def benchmark_one(
-    name: str,
-    fn: AttentionFn,
+    method: MethodSpec,
     q: torch.Tensor,
     k: torch.Tensor,
     v: torch.Tensor,
@@ -164,7 +183,7 @@ def benchmark_one(
     clear_memory(device)
 
     for _ in range(args.warmup):
-        fn(q, k, v, causal=args.causal)
+        method.fn(q, k, v, causal=args.causal)
 
     synchronize(device)
     times_ms: list[float] = []
@@ -174,20 +193,23 @@ def benchmark_one(
             start = torch.cuda.Event(enable_timing=True)
             end = torch.cuda.Event(enable_timing=True)
             start.record()
-            fn(q, k, v, causal=args.causal)
+            method.fn(q, k, v, causal=args.causal)
             end.record()
             synchronize(device)
             times_ms.append(start.elapsed_time(end))
         else:
             synchronize(device)
             start_time = time.perf_counter()
-            fn(q, k, v, causal=args.causal)
+            method.fn(q, k, v, causal=args.causal)
             synchronize(device)
             times_ms.append((time.perf_counter() - start_time) * 1000)
 
     allocated_memory = memory_allocated(device)
     return {
-        "method": name,
+        "method": method.name,
+        "backend": method.backend,
+        "status": "ok",
+        "error": "",
         "mean_latency_ms": statistics.mean(times_ms),
         "median_latency_ms": statistics.median(times_ms),
         "min_latency_ms": min(times_ms),
@@ -197,18 +219,10 @@ def benchmark_one(
     }
 
 
-def validate_correctness(
-    q: torch.Tensor,
-    k: torch.Tensor,
-    v: torch.Tensor,
-    args: argparse.Namespace,
-    compare_fn: AttentionFn,
-    device: torch.device,
+def correctness_against_standard(
+    standard: torch.Tensor,
+    compared: torch.Tensor,
 ) -> dict[str, float | bool]:
-    standard = standard_attention(q, k, v, causal=args.causal)
-    compared = compare_fn(q, k, v, causal=args.causal)
-    synchronize(device)
-
     diff = (standard - compared).float().abs()
     max_abs = float(diff.max().item())
     mean_abs = float(diff.mean().item())
@@ -220,11 +234,72 @@ def validate_correctness(
     }
 
 
+def build_methods(device: torch.device) -> list[MethodSpec]:
+    methods = [
+        MethodSpec("standard", "explicit_matmul_softmax_matmul", standard_attention),
+        MethodSpec("sdpa_auto", f"{device.type}_sdpa_auto", sdpa_attention),
+    ]
+
+    if device.type == "cuda":
+        methods.append(
+            MethodSpec(
+                "flash_forced",
+                "cuda_sdpa_flash_forced",
+                lambda q, k, v, causal: flash_attention(
+                    q,
+                    k,
+                    v,
+                    causal=causal,
+                    force_flash=True,
+                ),
+            )
+        )
+
+    return methods
+
+
+def add_run_context(
+    row: dict[str, object],
+    seq_len: int,
+    device: torch.device,
+    dtype: torch.dtype,
+    args: argparse.Namespace,
+    speedup: float | None,
+    correctness: dict[str, object],
+) -> dict[str, object]:
+    row.update(
+        {
+            "seq_len": seq_len,
+            "device": device.type,
+            "batch_size": args.batch_size,
+            "heads": args.heads,
+            "head_dim": args.head_dim,
+            "dtype": str(dtype).replace("torch.", ""),
+            "causal": args.causal,
+            "speedup_over_standard": speedup,
+            **correctness,
+        }
+    )
+    return row
+
+
+def compute_standard_output(
+    q: torch.Tensor,
+    k: torch.Tensor,
+    v: torch.Tensor,
+    args: argparse.Namespace,
+    device: torch.device,
+) -> torch.Tensor:
+    standard = standard_attention(q, k, v, causal=args.causal)
+    synchronize(device)
+    return standard
+
+
 def main() -> None:
     args = parse_args()
     device = select_device(args.device)
 
-    if device.type != "cuda" and not args.allow_sdpa_auto:
+    if device.type != "cuda":
         print(
             "Non-CUDA device selected. Running practice benchmark with PyTorch SDPA, "
             "not CUDA FlashAttention. Use --device cuda on an NVIDIA machine for the main experiment."
@@ -243,56 +318,73 @@ def main() -> None:
     if device.type == "cpu" and dtype in {torch.float16, torch.bfloat16}:
         dtype = torch.float32
 
-    if device.type == "cuda":
-        compared_name = "flash"
-        compared_fn: AttentionFn = lambda q, k, v, causal: flash_attention(
-            q,
-            k,
-            v,
-            causal=causal,
-            force_flash=not args.allow_sdpa_auto,
-        )
-    else:
-        compared_name = "sdpa"
-        compared_fn = sdpa_attention
-
+    methods = build_methods(device)
     rows: list[dict[str, object]] = []
 
     for seq_len in args.seq_lengths:
         q, k, v = make_inputs(args, seq_len, dtype, device)
-        correctness: dict[str, float | bool] = {}
-        if not args.skip_correctness:
-            correctness = validate_correctness(q, k, v, args, compared_fn, device)
-            if not correctness["correctness_passed"]:
-                raise RuntimeError(f"Correctness check failed at sequence length {seq_len}: {correctness}")
+        print(f"\nseq={seq_len}")
 
-        standard_row = benchmark_one("standard", standard_attention, q, k, v, args, device)
-        compared_row = benchmark_one(compared_name, compared_fn, q, k, v, args, device)
+        try:
+            standard_output = compute_standard_output(q, k, v, args, device)
+        except Exception as error:
+            for method in methods:
+                rows.append(
+                    add_run_context(
+                        error_row(method.name, method.backend, error),
+                        seq_len,
+                        device,
+                        dtype,
+                        args,
+                        None,
+                        {
+                            "correctness_max_abs_diff": None,
+                            "correctness_mean_abs_diff": None,
+                            "correctness_passed": False,
+                        },
+                    )
+                )
+            print(f"  all methods failed during standard correctness reference: {error}")
+            continue
 
-        standard_median = float(standard_row["median_latency_ms"])
-        compared_median = float(compared_row["median_latency_ms"])
-        speedup = standard_median / compared_median
+        seq_rows: list[dict[str, object]] = []
+        standard_median: float | None = None
 
-        for row in (standard_row, compared_row):
-            row.update(
-                {
-                    "seq_len": seq_len,
-                    "device": device.type,
-                    "batch_size": args.batch_size,
-                    "heads": args.heads,
-                    "head_dim": args.head_dim,
-                    "dtype": str(dtype).replace("torch.", ""),
-                    "causal": args.causal,
-                    "speedup_over_standard": speedup if row["method"] == compared_name else 1.0,
-                    **correctness,
-                }
-            )
+        for method in methods:
+            correctness: dict[str, object] = {
+                "correctness_max_abs_diff": 0.0 if method.name == "standard" else None,
+                "correctness_mean_abs_diff": 0.0 if method.name == "standard" else None,
+                "correctness_passed": True if method.name == "standard" else None,
+            }
+
+            try:
+                if method.name != "standard" and not args.skip_correctness:
+                    compared_output = method.fn(q, k, v, causal=args.causal)
+                    synchronize(device)
+                    correctness = correctness_against_standard(standard_output, compared_output)
+                    if not correctness["correctness_passed"]:
+                        raise RuntimeError(f"correctness check failed: {correctness}")
+
+                row = benchmark_one(method, q, k, v, args, device)
+            except Exception as error:
+                row = error_row(method.name, method.backend, error)
+
+            seq_rows.append(add_run_context(row, seq_len, device, dtype, args, None, correctness))
+            if method.name == "standard" and row["status"] == "ok":
+                standard_median = float(row["median_latency_ms"])
+
+        for row in seq_rows:
+            if row["status"] == "ok" and standard_median is not None:
+                row["speedup_over_standard"] = standard_median / float(row["median_latency_ms"])
             rows.append(row)
 
-        print(
-            f"seq={seq_len}: standard median={standard_median:.3f} ms, "
-            f"{compared_name} median={compared_median:.3f} ms, speedup={speedup:.2f}x"
-        )
+            if row["status"] == "ok":
+                print(
+                    f"  {row['method']}: median={float(row['median_latency_ms']):.3f} ms, "
+                    f"speedup={float(row['speedup_over_standard']):.2f}x"
+                )
+            else:
+                print(f"  {row['method']}: failed: {row['error']}")
 
     fieldnames = list(rows[0].keys())
     with args.output.open("w", newline="") as handle:

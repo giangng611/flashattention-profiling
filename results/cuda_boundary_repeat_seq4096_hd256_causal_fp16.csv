@@ -1,0 +1,3 @@
+seq_len,head_dim,dtype,causal,batch_size,heads,device,method,backend,status,error,mean_latency_ms,median_latency_ms,min_latency_ms,max_latency_ms,std_latency_ms,memory_allocated_bytes
+4096,256,float16,True,1,16,cuda,sdpa_auto,cuda_sdpa_auto,ok,,4.638227367401123,4.677567958831787,2.5742719173431396,5.05241584777832,0.32089686513324656,134480896
+4096,256,float16,True,1,16,cuda,flash_forced,cuda_sdpa_flash_forced,ok,,4.694244182109832,4.6684160232543945,2.579456090927124,5.094399929046631,0.2721619170804664,134480896

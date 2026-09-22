@@ -164,24 +164,26 @@ seq_len=4096, head_dim=256, dtype=float16, causal=true
 
 The next question is whether `sdpa_auto` and `flash_forced` are truly using the same kernel in this case. If they are using different kernels or different launch/configuration paths, this is a real backend-selection boundary. If they use the same kernel, the gap may be measurement instability or runtime overhead.
 
-The follow-up profiler result supports the second explanation: both methods used the same FlashAttention kernel. I should treat the 42.6% gap as an anomaly to repeat, not as a confirmed backend-selection failure.
+The follow-up profiler result supports the second explanation: both methods used the same FlashAttention kernel. A 200-trial repeat also showed nearly identical median latency, so I should treat the 42.6% gap as an unstable measurement anomaly, not as a confirmed backend-selection failure.
 
 ## Revised Hypothesis
 
 ```text
-For most tested attention shapes on RTX 3090, PyTorch SDPA auto and forced FlashAttention have nearly identical performance, suggesting that automatic backend selection is generally reliable. However, large-head causal configurations may expose a performance instability or dispatch/configuration difference that deserves targeted profiling.
+For most tested attention shapes on RTX 3090, PyTorch SDPA auto and forced FlashAttention have nearly identical performance, suggesting that automatic backend selection is generally reliable. However, large head dimensions and causal masking still expose performance patterns that deserve targeted profiling.
 ```
 
 ## Next Step
 
-Profile the strongest boundary candidate:
+The stronger next step is to profile the head dimension transition at sequence length 4096:
 
 ```bash
-python src/profile_attention.py --device cuda --seq-lengths 4096 --head-dim 256 --dtype float16 --causal --methods sdpa_auto flash_forced --warmup 5 --trials 10 --output-dir profiling/pytorch_boundary_seq4096_hd256_causal_fp16
+python src/profile_attention.py --device cuda --seq-lengths 4096 --head-dim 64 --dtype float16 --methods sdpa_auto flash_forced --warmup 5 --trials 10 --output-dir profiling/pytorch_hd64_seq4096_noncausal_fp16
+python src/profile_attention.py --device cuda --seq-lengths 4096 --head-dim 128 --dtype float16 --methods sdpa_auto flash_forced --warmup 5 --trials 10 --output-dir profiling/pytorch_hd128_seq4096_noncausal_fp16
 ```
 
-If needed, repeat the benchmark with more trials:
+The repeated anomaly check is stored in:
 
-```bash
-python src/sweep_attention_boundaries.py --device cuda --seq-lengths 4096 --head-dims 256 --dtypes float16 --causal-values true --warmup 10 --trials 100 --output results/cuda_boundary_repeat_seq4096_hd256_causal_fp16.csv --metadata-output results/cuda_boundary_repeat_seq4096_hd256_causal_fp16_metadata.json
+```text
+results/cuda_boundary_repeat_seq4096_hd256_causal_fp16.csv
+results/cuda_boundary_repeat_seq4096_hd256_causal_fp16_metadata.json
 ```

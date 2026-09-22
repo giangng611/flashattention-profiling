@@ -91,6 +91,15 @@ The current supported result is:
 For the tested RTX 3090 configurations, PyTorch SDPA auto generally selects the same FlashAttention path as forced FlashAttention. Even the strongest boundary candidate from the sweep used the same kernel when profiled.
 ```
 
+I also repeated the strongest anomaly with 30 warmup runs and 200 timed trials:
+
+| Method | Repeat mean latency | Repeat median latency | Min latency | Max latency | Std latency | Peak memory |
+|---|---:|---:|---:|---:|---:|---:|
+| `sdpa_auto` | 4.638 ms | 4.678 ms | 2.574 ms | 5.052 ms | 0.321 ms | 128.3 MiB |
+| `flash_forced` | 4.694 ms | 4.668 ms | 2.579 ms | 5.094 ms | 0.272 ms | 128.3 MiB |
+
+The repeated median gap is about 0.2%, with identical peak memory. This confirms that the earlier 42.6% gap was not stable.
+
 This strengthens the earlier conclusion from the head_dim 64 profiler run. The main difference I have solid evidence for is still:
 
 ```text
@@ -132,16 +141,18 @@ On this RTX 3090 and PyTorch 2.14 CUDA build, SDPA auto reliably dispatches to F
 
 ## Next Step
 
-I should repeat the strongest anomaly once with more trials, mainly to confirm that the earlier `sdpa_auto` vs `flash_forced` gap was unstable:
-
-```bash
-python src/sweep_attention_boundaries.py --device cuda --seq-lengths 4096 --head-dims 256 --dtypes float16 --causal-values true --warmup 30 --trials 200 --output results/cuda_boundary_repeat_seq4096_hd256_causal_fp16.csv --metadata-output results/cuda_boundary_repeat_seq4096_hd256_causal_fp16_metadata.json
-```
-
-After that, the more useful direction is to profile the head dimension transition:
+The strongest anomaly has now been repeated and does not hold up. The next useful direction is to profile the head dimension transition:
 
 ```bash
 python src/profile_attention.py --device cuda --seq-lengths 4096 --head-dim 64 --dtype float16 --methods sdpa_auto flash_forced --warmup 5 --trials 10 --output-dir profiling/pytorch_hd64_seq4096_noncausal_fp16
 python src/profile_attention.py --device cuda --seq-lengths 4096 --head-dim 128 --dtype float16 --methods sdpa_auto flash_forced --warmup 5 --trials 10 --output-dir profiling/pytorch_hd128_seq4096_noncausal_fp16
 ```
 
+I should compare the profiler tables for these two cases to see whether the latency jump from head dimension 64 to 128 corresponds to different FlashAttention kernel behavior, different memory allocation, or simply more work per token.
+
+Raw repeat outputs:
+
+```text
+results/cuda_boundary_repeat_seq4096_hd256_causal_fp16.csv
+results/cuda_boundary_repeat_seq4096_hd256_causal_fp16_metadata.json
+```

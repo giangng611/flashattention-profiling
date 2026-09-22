@@ -16,13 +16,20 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def set_sequence_axis(ax: plt.Axes, data: pd.DataFrame) -> None:
+    seq_lengths = sorted(data["seq_len"].unique())
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(seq_lengths)
+    ax.set_xticklabels([str(int(seq_len)) for seq_len in seq_lengths])
+
+
 def save_latency_plot(data: pd.DataFrame, output_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(7, 4.5))
     data = data[data["status"] == "ok"] if "status" in data.columns else data
     for method, group in data.groupby("method"):
         group = group.sort_values("seq_len")
         ax.plot(group["seq_len"], group["median_latency_ms"], marker="o", label=method)
-    ax.set_xscale("log", base=2)
+    set_sequence_axis(ax, data)
     ax.set_yscale("log")
     ax.set_xlabel("Sequence length")
     ax.set_ylabel("Median latency (ms)")
@@ -42,12 +49,12 @@ def save_memory_plot(data: pd.DataFrame, output_dir: Path) -> None:
     for method, group in data.groupby("method"):
         group = group.sort_values("seq_len")
         ax.plot(group["seq_len"], group["peak_memory_mb"], marker="o", label=method)
-    ax.set_xscale("log", base=2)
+    set_sequence_axis(ax, data)
     ax.set_xlabel("Sequence length")
-    ax.set_ylabel("Recorded allocated memory (MiB)")
-    ax.set_title("Recorded memory vs sequence length")
+    ax.set_ylabel("Allocated memory (MiB)")
+    ax.set_title("Attention memory vs sequence length")
     ax.grid(True, which="both", alpha=0.25)
-    ax.legend()
+    ax.legend(loc="lower left")
     fig.tight_layout()
     fig.savefig(output_dir / "peak_memory_vs_sequence_length.png", dpi=200)
     plt.close(fig)
@@ -60,7 +67,7 @@ def save_speedup_plot(data: pd.DataFrame, output_dir: Path) -> None:
     for method, group in compared.groupby("method"):
         ax.plot(group["seq_len"], group["speedup_over_standard"], marker="o", label=method)
     ax.axhline(1.0, color="black", linewidth=1, linestyle=":")
-    ax.set_xscale("log", base=2)
+    set_sequence_axis(ax, data)
     ax.set_xlabel("Sequence length")
     ax.set_ylabel("Speedup over standard attention")
     ax.set_title("Attention backend speedup vs sequence length")

@@ -179,6 +179,7 @@ Current CUDA result notes:
 - [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_RESULTS_REPORT.md)
 - [PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/PROFILING_RESULTS_REPORT.md)
 - [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_RESULTS_REPORT.md)
+- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_PROFILING_RESULTS_REPORT.md)
 
 ## Methodological Notes
 

@@ -89,6 +89,10 @@ std: 1.008 ms
 
 This suggests that the result should be repeated before making a strong claim, but it is still the most interesting boundary candidate found so far.
 
+Follow-up profiling weakened this interpretation. The candidate case used the same FlashAttention kernel for both `sdpa_auto` and `flash_forced`, with nearly identical CUDA kernel time. See:
+
+- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_PROFILING_RESULTS_REPORT.md)
+
 ## Other Observations
 
 Most configurations showed very small differences between `sdpa_auto` and `flash_forced`.
@@ -159,6 +163,8 @@ seq_len=4096, head_dim=256, dtype=float16, causal=true
 ```
 
 The next question is whether `sdpa_auto` and `flash_forced` are truly using the same kernel in this case. If they are using different kernels or different launch/configuration paths, this is a real backend-selection boundary. If they use the same kernel, the gap may be measurement instability or runtime overhead.
+
+The follow-up profiler result supports the second explanation: both methods used the same FlashAttention kernel. I should treat the 42.6% gap as an anomaly to repeat, not as a confirmed backend-selection failure.
 
 ## Revised Hypothesis
 

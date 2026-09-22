@@ -1,6 +1,6 @@
 # Next Report Draft
 
-This is a template for the next update to Qingchen after running the CUDA baseline.
+This is a template for my next research update after running the CUDA baseline.
 
 ## Summary
 

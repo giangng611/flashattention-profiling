@@ -19,7 +19,7 @@ Keep the same baseline settings as the benchmark:
 
 ## What To Look For
 
-For the first discussion with Qingchen, do not collect dozens of metrics. Focus on a small set that connects to the architectural story.
+For the first profiling pass, do not collect dozens of metrics. Focus on a small set that connects to the architectural story.
 
 - kernel duration: how much time the GPU spends inside the attention kernels
 - GPU DRAM bytes read and written: how much data moves through high bandwidth memory

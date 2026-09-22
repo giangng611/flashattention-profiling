@@ -1,6 +1,6 @@
 # CUDA Server Runbook
 
-This file records the steps for moving from the local Mac/MPS practice benchmark to the CUDA baseline requested by Qingchen.
+This file records the steps for moving from the local Mac/MPS practice benchmark to the CUDA baseline.
 
 ## Goal
 
@@ -154,4 +154,4 @@ If the server login works but CUDA is unavailable:
 
 1. Save the output of `nvidia-smi`.
 2. Save the output of `src/check_environment.py`.
-3. Send Qingchen the exact failure message.
+3. Save the exact failure message for the next update.

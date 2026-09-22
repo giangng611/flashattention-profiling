@@ -1,0 +1,19 @@
+{
+  "python_version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "torch_version": "2.14.0+cu130",
+  "torch_cuda_version": "13.0",
+  "device": "cuda",
+  "batch_size": 1,
+  "heads": 16,
+  "head_dim": 64,
+  "dtype": "float16",
+  "causal": false,
+  "warmup": 20,
+  "trials": 50,
+  "seed": 0,
+  "device_name": "NVIDIA GeForce RTX 3090",
+  "device_index": 0,
+  "compute_capability": "8.6",
+  "total_memory_bytes": 25288507392,
+  "benchmark_kind": "cuda_flashattention"
+}

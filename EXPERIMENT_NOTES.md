@@ -1,6 +1,6 @@
 # Experiment Notes
 
-These notes summarize the first local benchmark run on my Mac. This is written as a progress note for discussion with Qingchen, not as a final research result.
+These notes summarize the first local benchmark run on my Mac. This is a progress note for myself, not a final research result.
 
 ## What Was Tested
 
@@ -143,7 +143,7 @@ These require profiler data or a CUDA run before making stronger claims.
 4. Profile two representative sequence lengths, likely 512 and 4096.
 5. Use profiler metrics to separate measured facts from explanations.
 
-Qingchen's next requested report should include CUDA results, exact environment and reproduction steps, the most significant performance pattern or limitation, and a preliminary research problem with a testable hypothesis. I added:
+The next report should include CUDA results, exact environment and reproduction steps, the most significant performance pattern or limitation, and a preliminary research problem with a testable hypothesis. I added:
 
 - `CUDA_SERVER_RUNBOOK.md`
 - `NEXT_REPORT_TEMPLATE.md`

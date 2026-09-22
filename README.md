@@ -2,7 +2,7 @@
 
 This repository is my first hands-on experiment for understanding the systems idea behind FlashAttention and FlexInfer: actual performance is not determined by FLOP count alone. Memory movement, hardware utilization, kernel behavior, and runtime decisions can dominate the execution time.
 
-The current goal is intentionally modest. I am not trying to propose a new research problem yet. I am first building a small, reproducible benchmark so that I can collect measurements and discuss the results with Qingchen.
+The current goal is intentionally modest. I am not trying to propose a new research problem yet. I am first building a small, reproducible benchmark so that I can collect measurements, understand the performance behavior, and use the results to shape a more focused research direction.
 
 ## Motivation
 
@@ -89,7 +89,7 @@ torch.nn.functional.scaled_dot_product_attention
 
 with the FlashAttention backend forced when available.
 
-For the CUDA baseline requested by Qingchen, the benchmark records three paths:
+For the CUDA baseline, the benchmark records three paths:
 
 - `standard`: explicit matmul, softmax, matmul
 - `sdpa_auto`: PyTorch SDPA with automatic backend selection
@@ -220,4 +220,4 @@ flashattention-profiling/
 
 ## Current Status
 
-The repository is ready for local Mac/MPS testing and CUDA testing. The next concrete step is to access the UGA CUDA server, run the CUDA smoke test, then run the full CUDA baseline for Qingchen's next report.
+The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes the first CUDA baseline on the UGA CUDA server. My next concrete step is to profile representative CUDA cases and then start exploring Triton.

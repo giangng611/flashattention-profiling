@@ -123,9 +123,16 @@ This is consistent with the expected memory pressure of materializing the full a
 
 For sequence lengths 128 through 2048, `sdpa_auto` is faster than `flash_forced`. At sequence length 4096, `flash_forced` becomes slightly faster than `sdpa_auto`.
 
-This suggests that automatic SDPA backend selection and explicitly forced FlashAttention are not identical in performance across sequence lengths. The fastest implementation can depend on workload shape.
+The follow-up PyTorch Profiler pass shows that this should not be over-interpreted as a clear backend crossover. At sequence lengths 512 and 4096, `sdpa_auto` and `flash_forced` both use the PyTorch FlashAttention path:
 
-The difference is small at 4096, but the pattern is still useful because it suggests a possible workload-dependent backend selection issue.
+```text
+aten::_scaled_dot_product_flash_attention
+pytorch_flash::flash_fwd_kernel
+```
+
+This means the strongest finding is the gap between explicit standard attention and fused FlashAttention, not a confirmed difference between two distinct optimized backends.
+
+The small timing differences between `sdpa_auto` and `flash_forced` may come from measurement noise, dispatch/context overhead, or other small runtime effects.
 
 ## Supported Measurements
 
@@ -146,13 +153,13 @@ Preliminary hypothesis:
 The best attention implementation depends on workload shape. A lightweight workload-aware selection policy based on sequence length, head dimension, dtype, and GPU properties can choose between SDPA auto, forced FlashAttention, and future Triton kernels with performance close to exhaustive selection, while avoiding expensive tuning.
 ```
 
-More specific hypothesis for the next experiment:
+Refined hypothesis after PyTorch profiling:
 
 ```text
-For small and medium sequence lengths, SDPA auto is faster because it may choose a backend with lower overhead, while forced FlashAttention becomes more competitive at longer sequence lengths where reducing attention matrix materialization and memory traffic matters more.
+For FP16 attention on an RTX 3090 with head dimension 64, PyTorch SDPA auto already selects FlashAttention for the tested representative sequence lengths. The next useful question is where automatic attention backend selection stops being reliable, such as different head dimensions, dtypes, causal settings, or longer sequence lengths.
 ```
 
-This second hypothesis needs profiler evidence before making a strong claim.
+This refined hypothesis should be tested with broader workload sweeps.
 
 ## Limitations
 
@@ -188,5 +195,7 @@ The profiler results should help answer:
 - Does forced FlashAttention reduce DRAM traffic compared with standard attention?
 - Is the 4096 result related to memory traffic, kernel selection, or launch overhead?
 - Why is `sdpa_auto` faster than `flash_forced` at smaller sequence lengths?
+
+See `PROFILING_RESULTS_REPORT.md` for the PyTorch Profiler interpretation.
 
 After that, I can start exploring Triton through the official tutorial sequence.

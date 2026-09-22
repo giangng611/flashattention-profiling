@@ -174,6 +174,12 @@ For the UGA CUDA server workflow, see:
 - [CUDA_SERVER_RUNBOOK.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_SERVER_RUNBOOK.md)
 - [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NEXT_REPORT_TEMPLATE.md)
 
+Current CUDA result notes:
+
+- [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_RESULTS_REPORT.md)
+- [PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/PROFILING_RESULTS_REPORT.md)
+- [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_RESULTS_REPORT.md)
+
 ## Methodological Notes
 
 For CUDA, timing uses CUDA events and explicit synchronization. This is more appropriate for GPU kernels than CPU wall-clock timing because CUDA kernel launches are asynchronous.

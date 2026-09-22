@@ -76,3 +76,7 @@ cat results/cuda_boundary_sweep_metadata.json
 ```
 
 Then identify 2-3 interesting configurations and run PyTorch Profiler on those specific cases.
+
+The first completed CUDA sweep is summarized in:
+
+- [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_RESULTS_REPORT.md)

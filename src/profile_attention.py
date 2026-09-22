@@ -39,6 +39,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--causal", action="store_true")
     parser.add_argument("--warmup", type=int, default=5)
     parser.add_argument("--trials", type=int, default=10)
+    parser.add_argument(
+        "--methods",
+        nargs="+",
+        choices=["standard", "sdpa_auto", "flash_forced"],
+        default=None,
+        help="Optional subset of attention methods to profile.",
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("profiling/pytorch"))
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--row-limit", type=int, default=25)
@@ -58,6 +65,7 @@ def environment_metadata(args: argparse.Namespace, device: torch.device) -> dict
         "causal": args.causal,
         "warmup": args.warmup,
         "trials": args.trials,
+        "methods": args.methods,
         "seed": args.seed,
     }
 
@@ -211,6 +219,9 @@ def main() -> None:
 
     rows: list[dict[str, object]] = []
     methods = build_methods(device)
+    if args.methods is not None:
+        selected_methods = set(args.methods)
+        methods = [method for method in methods if method.name in selected_methods]
 
     for seq_len in args.seq_lengths:
         print(f"\nseq={seq_len}")

@@ -171,10 +171,16 @@ Therefore, explanations about memory traffic and backend behavior are still hypo
 
 ## Next Experiment
 
-The next step is to profile representative cases:
+The next step is to profile representative cases with PyTorch Profiler first, since Nsight Systems and Nsight Compute are not currently available in the server shell path:
 
 - sequence length 512
 - sequence length 4096
+
+Command:
+
+```bash
+python src/profile_attention.py --device cuda --seq-lengths 512 4096 --warmup 5 --trials 10 --output-dir profiling/pytorch
+```
 
 The profiler results should help answer:
 

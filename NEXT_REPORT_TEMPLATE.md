@@ -124,7 +124,7 @@ This is only a preliminary hypothesis. It should be revised after the CUDA measu
 
 After the CUDA baseline:
 
-1. Profile representative sequence lengths, likely 512 and 4096.
-2. Record kernel duration, DRAM traffic, memory throughput, compute throughput, occupancy, and kernel launches if available.
-3. Check whether profiler data supports the latency and memory explanation.
-4. Begin Triton tutorials after the CUDA baseline is stable.
+1. Profile representative sequence lengths, likely 512 and 4096, using PyTorch Profiler first.
+2. Inspect dominant operators and CUDA time for `standard`, `sdpa_auto`, and `flash_forced`.
+3. Use Nsight Systems or Nsight Compute later if they become available.
+4. Begin Triton tutorials after the CUDA profiling pass is stable.

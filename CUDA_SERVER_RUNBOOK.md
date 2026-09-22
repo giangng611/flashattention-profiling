@@ -111,7 +111,19 @@ Only profile a small number of cases first:
 - sequence length 512
 - sequence length 4096
 
-Suggested starting point:
+The server currently may not expose `nsys` or `ncu` in the shell path. If those tools are unavailable, use PyTorch Profiler first:
+
+```bash
+python src/profile_attention.py --device cuda --seq-lengths 512 4096 --warmup 5 --trials 10 --output-dir profiling/pytorch
+```
+
+This writes text summaries, machine-readable event CSV files, and Chrome trace JSON files under:
+
+```text
+profiling/pytorch/
+```
+
+If Nsight Systems is available later, use it for a timeline:
 
 ```bash
 nsys profile -o profiling/cuda_seq512 .venv/bin/python src/benchmark_attention.py --device cuda --seq-lengths 512 --warmup 5 --trials 10 --output results/cuda_seq512_profile_run.csv --metadata-output results/cuda_seq512_profile_metadata.json
@@ -121,7 +133,7 @@ nsys profile -o profiling/cuda_seq512 .venv/bin/python src/benchmark_attention.p
 nsys profile -o profiling/cuda_seq4096 .venv/bin/python src/benchmark_attention.py --device cuda --seq-lengths 4096 --warmup 5 --trials 10 --output results/cuda_seq4096_profile_run.csv --metadata-output results/cuda_seq4096_profile_metadata.json
 ```
 
-Use Nsight Compute later if kernel-level metrics are needed:
+Use Nsight Compute later if kernel-level metrics are available and needed:
 
 ```bash
 ncu -o profiling/cuda_seq4096 .venv/bin/python src/benchmark_attention.py --device cuda --seq-lengths 4096 --warmup 3 --trials 5 --output results/cuda_seq4096_ncu_run.csv --metadata-output results/cuda_seq4096_ncu_metadata.json

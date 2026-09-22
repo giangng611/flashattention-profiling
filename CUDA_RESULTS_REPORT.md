@@ -198,4 +198,4 @@ The profiler results should help answer:
 
 See `PROFILING_RESULTS_REPORT.md` for the PyTorch Profiler interpretation.
 
-After that, I can start exploring Triton through the official tutorial sequence.
+After that, I should run the boundary sweep in `BOUNDARY_SWEEP_PLAN.md`. Triton becomes more useful once I identify a shape or backend boundary worth targeting.

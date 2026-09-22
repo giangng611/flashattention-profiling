@@ -250,7 +250,7 @@ Possible next sweeps:
    - 8192
    - possibly 16384 for SDPA/FlashAttention only
 
-5. Start Triton tutorials after identifying which operation or backend boundary is worth studying.
+5. Run the boundary sweep in `BOUNDARY_SWEEP_PLAN.md`, then start Triton tutorials after identifying which operation or backend boundary is worth studying.
 
 The most natural research direction remains:
 

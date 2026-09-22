@@ -220,4 +220,6 @@ flashattention-profiling/
 
 ## Current Status
 
-The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes the first CUDA baseline on the UGA CUDA server. My next concrete step is to profile representative CUDA cases with PyTorch Profiler and then start exploring Triton.
+The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes the first CUDA baseline and a PyTorch Profiler pass on the UGA CUDA server. My next concrete step is to run the boundary sweep across head dimension, dtype, and causal mode before moving into Triton.
+
+See [BOUNDARY_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_PLAN.md).

@@ -1,0 +1,40 @@
+{
+  "python_version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "torch_version": "2.14.0+cu130",
+  "torch_cuda_version": "13.0",
+  "device": "cuda",
+  "seq_lengths": [
+    4096
+  ],
+  "head_dims": [
+    32,
+    64,
+    128,
+    256
+  ],
+  "dtypes": [
+    "float16"
+  ],
+  "causal_values": [
+    "false",
+    "true"
+  ],
+  "batch_size": 1,
+  "heads": 16,
+  "warmup": 30,
+  "trials": 200,
+  "include_standard": false,
+  "normalized_metrics": {
+    "attention_pairs": "seq_len^2 for non-causal attention, seq_len * (seq_len + 1) / 2 for causal attention",
+    "estimated_attention_flops": "4 * batch_size * heads * attention_pairs * head_dim, counting multiply-add as 2 FLOPs for QK^T and P/V",
+    "mean_tflops": "estimated_attention_flops divided by mean latency",
+    "median_tflops": "estimated_attention_flops divided by median latency",
+    "median_us_per_token": "median latency normalized by batch_size * seq_len",
+    "median_ns_per_attention_pair": "median latency normalized by batch_size * heads * attention_pairs"
+  },
+  "seed": 0,
+  "device_name": "NVIDIA GeForce RTX 3090",
+  "device_index": 0,
+  "compute_capability": "8.6",
+  "total_memory_bytes": 25288507392
+}

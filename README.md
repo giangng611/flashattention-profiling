@@ -181,6 +181,8 @@ Current CUDA result notes:
 - [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_RESULTS_REPORT.md)
 - [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_PROFILING_RESULTS_REPORT.md)
 - [HEAD_DIMENSION_STUDY_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_STUDY_PLAN.md)
+- [HEAD_DIMENSION_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_RESULTS_REPORT.md)
+- [TRITON_EXPERIMENT_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_EXPERIMENT_PLAN.md)
 
 ## Methodological Notes
 

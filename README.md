@@ -183,6 +183,7 @@ Current CUDA result notes:
 - [HEAD_DIMENSION_STUDY_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_STUDY_PLAN.md)
 - [HEAD_DIMENSION_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_RESULTS_REPORT.md)
 - [TRITON_EXPERIMENT_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_EXPERIMENT_PLAN.md)
+- [TRITON_QK_SMOKE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_SMOKE_REPORT.md)
 - [NSIGHT_SETUP_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_SETUP_NOTES.md)
 
 ## Methodological Notes

@@ -78,6 +78,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trials", type=int, default=100)
     parser.add_argument("--block-m", type=int, default=16)
     parser.add_argument("--block-n", type=int, default=16)
+    parser.add_argument(
+        "--block-sizes",
+        nargs="+",
+        type=int,
+        default=None,
+        help="Optional square Triton tile sizes to sweep, for example 16 32 64.",
+    )
     parser.add_argument("--output", type=Path, default=Path("results/triton_qk_benchmark.csv"))
     parser.add_argument("--metadata-output", type=Path, default=Path("results/triton_qk_benchmark_metadata.json"))
     parser.add_argument("--seed", type=int, default=0)
@@ -137,6 +144,12 @@ def add_normalized_metrics(row: dict[str, object], seq_len: int, head_dim: int) 
     return row
 
 
+def triton_block_sizes(args: argparse.Namespace) -> list[tuple[int, int]]:
+    if args.block_sizes is not None:
+        return [(block_size, block_size) for block_size in args.block_sizes]
+    return [(args.block_m, args.block_n)]
+
+
 def benchmark_one(seq_len: int, head_dim: int, args: argparse.Namespace) -> list[dict[str, object]]:
     q = torch.randn((seq_len, head_dim), device="cuda", dtype=torch.float16)
     k = torch.randn((seq_len, head_dim), device="cuda", dtype=torch.float16)
@@ -147,8 +160,8 @@ def benchmark_one(seq_len: int, head_dim: int, args: argparse.Namespace) -> list
     def run_torch() -> None:
         torch.matmul(q, k.transpose(0, 1), out=torch_out)
 
-    def run_triton() -> None:
-        grid = (triton.cdiv(seq_len, args.block_m), triton.cdiv(seq_len, args.block_n))
+    def run_triton(block_m: int, block_n: int) -> None:
+        grid = (triton.cdiv(seq_len, block_m), triton.cdiv(seq_len, block_n))
         qk_matmul_kernel[grid](
             q,
             k,
@@ -161,8 +174,8 @@ def benchmark_one(seq_len: int, head_dim: int, args: argparse.Namespace) -> list
             k.stride(1),
             triton_out.stride(0),
             triton_out.stride(1),
-            args.block_m,
-            args.block_n,
+            block_m,
+            block_n,
             block_d,
         )
 
@@ -170,28 +183,46 @@ def benchmark_one(seq_len: int, head_dim: int, args: argparse.Namespace) -> list
     correctness_mean_abs_diff = None
     if not args.skip_correctness:
         run_torch()
-        run_triton()
+        first_block_m, first_block_n = triton_block_sizes(args)[0]
+        run_triton(first_block_m, first_block_n)
         synchronize()
         diff = (torch_out.float() - triton_out).abs()
         correctness_max_abs_diff = float(diff.max().item())
         correctness_mean_abs_diff = float(diff.mean().item())
 
     rows: list[dict[str, object]] = []
-    for method, fn in [("torch_matmul", run_torch), ("triton_qk_matmul", run_triton)]:
+    torch.cuda.empty_cache()
+    torch.cuda.reset_peak_memory_stats()
+    torch_row: dict[str, object] = {
+        "method": "torch_matmul",
+        "seq_len": seq_len,
+        "head_dim": head_dim,
+        "dtype": "float16",
+        "block_m": None,
+        "block_n": None,
+        "block_d": None,
+        "correctness_max_abs_diff": correctness_max_abs_diff,
+        "correctness_mean_abs_diff": correctness_mean_abs_diff,
+    }
+    torch_row.update(time_cuda(run_torch, args.warmup, args.trials))
+    torch_row["memory_allocated_bytes"] = int(torch.cuda.max_memory_allocated())
+    rows.append(add_normalized_metrics(torch_row, seq_len, head_dim))
+
+    for block_m, block_n in triton_block_sizes(args):
         torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats()
         row: dict[str, object] = {
-            "method": method,
+            "method": "triton_qk_matmul",
             "seq_len": seq_len,
             "head_dim": head_dim,
             "dtype": "float16",
-            "block_m": args.block_m if method == "triton_qk_matmul" else None,
-            "block_n": args.block_n if method == "triton_qk_matmul" else None,
-            "block_d": block_d if method == "triton_qk_matmul" else None,
+            "block_m": block_m,
+            "block_n": block_n,
+            "block_d": block_d,
             "correctness_max_abs_diff": correctness_max_abs_diff,
             "correctness_mean_abs_diff": correctness_mean_abs_diff,
         }
-        row.update(time_cuda(fn, args.warmup, args.trials))
+        row.update(time_cuda(lambda: run_triton(block_m, block_n), args.warmup, args.trials))
         row["memory_allocated_bytes"] = int(torch.cuda.max_memory_allocated())
         rows.append(add_normalized_metrics(row, seq_len, head_dim))
     return rows
@@ -215,6 +246,7 @@ def metadata(args: argparse.Namespace) -> dict[str, object]:
         "trials": args.trials,
         "block_m": args.block_m,
         "block_n": args.block_n,
+        "block_sizes": args.block_sizes,
         "seed": args.seed,
         "note": "This is a QK^T matmul microbenchmark, not full FlashAttention.",
     }

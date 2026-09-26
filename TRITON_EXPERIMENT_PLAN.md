@@ -104,6 +104,12 @@ If this is too slow or memory-heavy, reduce the sequence length first:
 python src/benchmark_triton_qk.py --seq-len 2048 --head-dims 32 64 128 256 --warmup 10 --trials 50 --output results/triton_qk_benchmark_seq2048.csv --metadata-output results/triton_qk_benchmark_seq2048_metadata.json
 ```
 
+After the first smoke test, tune tile sizes before interpreting performance:
+
+```bash
+python src/benchmark_triton_qk.py --seq-len 2048 --head-dims 32 64 128 --block-sizes 16 32 64 --warmup 10 --trials 30 --output results/triton_qk_tile_sweep_seq2048.csv --metadata-output results/triton_qk_tile_sweep_seq2048_metadata.json
+```
+
 ## Expected Value
 
 If Triton matmul shows similar normalized scaling, then the PyTorch/FlashAttention head_dim trend is likely a general tiled-matmul arithmetic-intensity effect.

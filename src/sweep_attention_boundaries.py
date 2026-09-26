@@ -137,6 +137,60 @@ def benchmark_method(
         }
 
 
+def attention_pairs(seq_len: int, causal: bool) -> int:
+    if causal:
+        return seq_len * (seq_len + 1) // 2
+    return seq_len * seq_len
+
+
+def estimated_attention_flops(
+    batch_size: int,
+    heads: int,
+    seq_len: int,
+    head_dim: int,
+    causal: bool,
+) -> int:
+    # Two attention matmuls: QK^T and P/V. Each multiply-add counts as 2 FLOPs.
+    return 4 * batch_size * heads * attention_pairs(seq_len, causal) * head_dim
+
+
+def add_normalized_metrics(row: dict[str, object], config: dict[str, object]) -> dict[str, object]:
+    if row["status"] != "ok":
+        row.update(
+            {
+                "attention_pairs": None,
+                "estimated_attention_flops": None,
+                "mean_tflops": None,
+                "median_tflops": None,
+                "median_us_per_token": None,
+                "median_ns_per_attention_pair": None,
+            }
+        )
+        return row
+
+    seq_len = int(config["seq_len"])
+    head_dim = int(config["head_dim"])
+    batch_size = int(config["batch_size"])
+    heads = int(config["heads"])
+    causal = bool(config["causal"])
+    pairs = attention_pairs(seq_len, causal)
+    flops = estimated_attention_flops(batch_size, heads, seq_len, head_dim, causal)
+    mean_ms = float(row["mean_latency_ms"])
+    median_ms = float(row["median_latency_ms"])
+
+    row.update(
+        {
+            "attention_pairs": pairs,
+            "estimated_attention_flops": flops,
+            "mean_tflops": flops / (mean_ms / 1000.0) / 1e12,
+            "median_tflops": flops / (median_ms / 1000.0) / 1e12,
+            "median_us_per_token": median_ms * 1000.0 / (batch_size * seq_len),
+            "median_ns_per_attention_pair": median_ms * 1_000_000.0 / (batch_size * heads * pairs),
+        }
+    )
+    return row
+
+
 def metadata(args: argparse.Namespace, device: torch.device) -> dict[str, object]:
     data: dict[str, object] = {
         "python_version": sys.version.replace("\n", " "),
@@ -152,6 +206,14 @@ def metadata(args: argparse.Namespace, device: torch.device) -> dict[str, object
         "warmup": args.warmup,
         "trials": args.trials,
         "include_standard": args.include_standard,
+        "normalized_metrics": {
+            "attention_pairs": "seq_len^2 for non-causal attention, seq_len * (seq_len + 1) / 2 for causal attention",
+            "estimated_attention_flops": "4 * batch_size * heads * attention_pairs * head_dim, counting multiply-add as 2 FLOPs for QK^T and P/V",
+            "mean_tflops": "estimated_attention_flops divided by mean latency",
+            "median_tflops": "estimated_attention_flops divided by median latency",
+            "median_us_per_token": "median latency normalized by batch_size * seq_len",
+            "median_ns_per_attention_pair": "median latency normalized by batch_size * heads * attention_pairs",
+        },
         "seed": args.seed,
     }
 
@@ -226,23 +288,22 @@ def main() -> None:
             )
         except Exception as error:
             for method in methods:
-                rows.append(
-                    add_context(
-                        {
-                            "method": method.name,
-                            "backend": method.backend,
-                            "status": "failed",
-                            "error": f"input allocation failed: {type(error).__name__}: {error}",
-                            "mean_latency_ms": None,
-                            "median_latency_ms": None,
-                            "min_latency_ms": None,
-                            "max_latency_ms": None,
-                            "std_latency_ms": None,
-                            "memory_allocated_bytes": None,
-                        },
-                        dict(config),
-                    )
+                row = add_context(
+                    {
+                        "method": method.name,
+                        "backend": method.backend,
+                        "status": "failed",
+                        "error": f"input allocation failed: {type(error).__name__}: {error}",
+                        "mean_latency_ms": None,
+                        "median_latency_ms": None,
+                        "min_latency_ms": None,
+                        "max_latency_ms": None,
+                        "std_latency_ms": None,
+                        "memory_allocated_bytes": None,
+                    },
+                    dict(config),
                 )
+                rows.append(add_normalized_metrics(row, config))
             continue
 
         for method in methods:
@@ -256,9 +317,13 @@ def main() -> None:
                 args.trials,
                 device,
             )
-            rows.append(add_context(row, dict(config)))
+            row = add_context(row, dict(config))
+            rows.append(add_normalized_metrics(row, config))
             if row["status"] == "ok":
-                print(f"  {method.name}: {float(row['median_latency_ms']):.4f} ms")
+                print(
+                    f"  {method.name}: {float(row['median_latency_ms']):.4f} ms, "
+                    f"{float(row['median_tflops']):.2f} TFLOP/s"
+                )
             else:
                 print(f"  {method.name}: failed: {row['error']}")
 
@@ -282,6 +347,12 @@ def main() -> None:
         "max_latency_ms",
         "std_latency_ms",
         "memory_allocated_bytes",
+        "attention_pairs",
+        "estimated_attention_flops",
+        "mean_tflops",
+        "median_tflops",
+        "median_us_per_token",
+        "median_ns_per_attention_pair",
     ]
     with args.output.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

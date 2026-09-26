@@ -66,6 +66,12 @@ Then create a small benchmark that compares:
 - PyTorch `torch.matmul(q, k.transpose(-2, -1))`
 - a Triton tiled QK matmul kernel
 
+The first version is implemented in:
+
+```text
+src/benchmark_triton_qk.py
+```
+
 Initial shapes:
 
 ```text
@@ -85,6 +91,18 @@ Use the same normalized metrics style as the controlled head-dim sweep:
 - median TFLOP/s
 - latency per token
 - latency per QK pair
+
+## First Run Command
+
+```bash
+python src/benchmark_triton_qk.py --seq-len 4096 --head-dims 32 64 128 256 --warmup 20 --trials 100 --output results/triton_qk_benchmark.csv --metadata-output results/triton_qk_benchmark_metadata.json
+```
+
+If this is too slow or memory-heavy, reduce the sequence length first:
+
+```bash
+python src/benchmark_triton_qk.py --seq-len 2048 --head-dims 32 64 128 256 --warmup 10 --trials 50 --output results/triton_qk_benchmark_seq2048.csv --metadata-output results/triton_qk_benchmark_seq2048_metadata.json
+```
 
 ## Expected Value
 

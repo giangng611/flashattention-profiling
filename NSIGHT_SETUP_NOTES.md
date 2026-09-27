@@ -102,3 +102,39 @@ ncu -o profiling/ncu_hd128_seq4096 python src/profile_attention.py --device cuda
 ```
 
 If these tools are unavailable after reasonable effort, I should document that and continue with PyTorch Profiler plus the Triton microbenchmark.
+
+## Current Status After Local Install Attempt
+
+I successfully installed Nsight Compute under my home directory:
+
+```text
+$HOME/local/nsight/nsight_compute-linux-x86_64-2026.3.1.2-archive
+```
+
+The correct binary for this server is:
+
+```text
+target/linux-desktop-glibc_2_11_3-x64/ncu
+```
+
+The archive also contains an ARM binary:
+
+```text
+target/linux-desktop-t210-a64/ncu
+```
+
+That binary should not be used on this x86_64 server.
+
+After adding the correct binary directory to `PATH`, `ncu` is callable. However, useful hardware-counter collection is currently blocked:
+
+```text
+ERR_NVGPUCTRPERM - The user does not have permission to access NVIDIA GPU Performance Counters on the target device 0.
+```
+
+The default `ncu` set can attach to the process and produce a `.ncu-repz` file, but it does not provide the hardware-counter metrics I wanted for roofline or memory-throughput analysis.
+
+Detailed notes are in:
+
+```text
+NSIGHT_NCU_RESULTS_REPORT.md
+```

@@ -187,6 +187,7 @@ Current CUDA result notes:
 - [TRITON_QK_TILE_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_TILE_SWEEP_REPORT.md)
 - [TRITON_QK_SEQ4096_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_SEQ4096_RESULTS_REPORT.md)
 - [NSIGHT_SETUP_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_SETUP_NOTES.md)
+- [NSIGHT_NCU_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_NCU_RESULTS_REPORT.md)
 
 ## Methodological Notes
 

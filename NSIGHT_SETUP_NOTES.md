@@ -138,3 +138,27 @@ Detailed notes are in:
 ```text
 NSIGHT_NCU_RESULTS_REPORT.md
 ```
+
+I also installed Nsight Systems under my home directory:
+
+```text
+$HOME/local/nsight/nsight_systems-linux-x86_64-2026.3.2.476-archive
+```
+
+The executable is:
+
+```text
+target-linux-x64/nsys
+```
+
+Nsight Systems successfully generated a smoke timeline report:
+
+```text
+profiling/nsys_qk_smoke.nsys-rep
+```
+
+CPU sampling and CPU context-switch tracing were disabled by the server configuration, but the CUDA timeline report was still generated. Detailed notes are in:
+
+```text
+NSIGHT_NSYS_RESULTS_REPORT.md
+```

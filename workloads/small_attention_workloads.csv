@@ -1,0 +1,7 @@
+name,phase,batch,query_length,kv_length,query_heads,kv_heads,head_dim,dtype,causal
+toy-prefill-d64,prefill,1,512,512,8,8,64,float16,true
+toy-prefill-d128,prefill,1,512,512,8,8,128,float16,true
+qwen2.5-1.5b-like-prefill-512,prefill,1,512,512,12,12,128,float16,true
+qwen2.5-1.5b-like-prefill-2048,prefill,1,2048,2048,12,12,128,float16,true
+qwen2.5-1.5b-like-decode-2048,decode,1,1,2048,12,12,128,float16,true
+qwen2.5-7b-like-prefill-512-gqa,prefill,1,512,512,28,4,128,float16,true

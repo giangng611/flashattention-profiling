@@ -60,6 +60,42 @@ I should first run it with small fixed shapes, then adapt the benchmark harness 
 - peak memory
 - environment metadata
 
+## Current Implementation Status
+
+I added an initial forward-only Triton fused-attention benchmark:
+
+```text
+src/benchmark_triton_fused_attention.py
+```
+
+This script compares:
+
+- PyTorch SDPA
+- a small Triton fused-attention forward kernel
+
+The initial kernel supports contiguous causal self-attention where:
+
+```text
+query_length == kv_length
+query_heads == kv_heads
+```
+
+This means it is enough for the first full-attention prefill experiment, but it is not yet a complete reproduction of production FlashAttention. Decode shapes and GQA/MQA shapes are intentionally recorded as skipped for now instead of being benchmarked incorrectly.
+
+The purpose of this first implementation is to move one step beyond the QK^T microbenchmark and start measuring the full operation:
+
+```text
+O = softmax(QK^T / sqrt(d)) V
+```
+
+I should treat the first results as an implementation smoke test, then use them to decide whether the next useful step is:
+
+- add GQA support
+- add decode support
+- add tile/autotune experiments
+- compare with the official Triton tutorial kernel
+- collect application-derived shapes from small LLM inference workloads
+
 ## Small Workload Table
 
 Start with a small hand-built workload table:
@@ -74,6 +110,12 @@ Start with a small hand-built workload table:
 | Qwen2.5-7B-like | decode | 1 | 1 | 2048 | 28 | 4 | 128 | fp16 | true |
 
 These shapes should be verified against model configs before I use them in a report. For the first implementation pass, they are a starting workload table.
+
+The same starter table is also saved as:
+
+```text
+workloads/small_attention_workloads.csv
+```
 
 ## First Experiment
 
@@ -98,16 +140,30 @@ If all shapes prefer the same configuration, or if tuning cost is negligible, th
 
 ## Next Concrete Command Goal
 
-The next repo change should add:
+The next server run should start with a smoke test:
 
-```text
-src/benchmark_triton_fused_attention.py
+```bash
+python src/benchmark_triton_fused_attention.py \
+  --workloads workloads/small_attention_workloads.csv \
+  --warmup 2 \
+  --trials 5 \
+  --block-m 64 \
+  --block-n 64 \
+  --output results/triton_fused_attention_smoke.csv \
+  --metadata-output results/triton_fused_attention_smoke_metadata.json
 ```
 
-That script should:
+If the smoke test passes, run a more stable measurement:
 
-- run PyTorch SDPA and Triton fused attention
-- accept workload shapes from a CSV or built-in table
-- write CSV results and metadata
-- perform correctness checks
+```bash
+python src/benchmark_triton_fused_attention.py \
+  --workloads workloads/small_attention_workloads.csv \
+  --warmup 20 \
+  --trials 100 \
+  --block-m 64 \
+  --block-n 64 \
+  --output results/triton_fused_attention.csv \
+  --metadata-output results/triton_fused_attention_metadata.json
+```
 
+The expected first output is not that Triton beats PyTorch SDPA. PyTorch SDPA is already highly optimized. The useful first signal is whether my Triton implementation is correct, how far it is from PyTorch, and which workload shapes expose the biggest gap.

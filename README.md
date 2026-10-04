@@ -177,6 +177,7 @@ For the UGA CUDA server workflow, see:
 - [PAPER_REVIEW_TABLE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/PAPER_REVIEW_TABLE.md)
 - [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FULL_ATTENTION_WORKLOAD_PLAN.md)
 - [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
+- [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
 - [workloads/small_attention_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/small_attention_workloads.csv)
 
 Current CUDA result notes:

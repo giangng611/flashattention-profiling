@@ -169,32 +169,45 @@ plots/peak_memory_vs_sequence_length.png
 plots/speedup_vs_sequence_length.png
 ```
 
-For the UGA CUDA server workflow, see:
+## Documentation Map
 
-- [CUDA_SERVER_RUNBOOK.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_SERVER_RUNBOOK.md)
-- [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NEXT_REPORT_TEMPLATE.md)
-- [WEEKLY_PROGRESS.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/WEEKLY_PROGRESS.md)
-- [PAPER_REVIEW_TABLE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/PAPER_REVIEW_TABLE.md)
-- [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FULL_ATTENTION_WORKLOAD_PLAN.md)
-- [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
-- [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
+Setup and runbooks:
+
+- [CUDA_SERVER_RUNBOOK.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/setup/CUDA_SERVER_RUNBOOK.md)
+- [NSIGHT_SETUP_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/setup/NSIGHT_SETUP_NOTES.md)
+
+Current plans and templates:
+
+- [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
+- [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FULL_ATTENTION_WORKLOAD_PLAN.md)
+- [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/NEXT_REPORT_TEMPLATE.md)
+
+Reading and progress notes:
+
+- [PAPER_REVIEW_TABLE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reading/PAPER_REVIEW_TABLE.md)
+- [WEEKLY_PROGRESS.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/WEEKLY_PROGRESS.md)
+- [EXPERIMENT_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/EXPERIMENT_NOTES.md)
+
+Current main report:
+
+- [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
+
+Earlier experiment reports:
+
+- [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/CUDA_RESULTS_REPORT.md)
+- [PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/PROFILING_RESULTS_REPORT.md)
+- [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/BOUNDARY_SWEEP_RESULTS_REPORT.md)
+- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/BOUNDARY_PROFILING_RESULTS_REPORT.md)
+- [HEAD_DIMENSION_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/HEAD_DIMENSION_RESULTS_REPORT.md)
+- [TRITON_QK_SMOKE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_SMOKE_REPORT.md)
+- [TRITON_QK_TILE_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_TILE_SWEEP_REPORT.md)
+- [TRITON_QK_SEQ4096_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_SEQ4096_RESULTS_REPORT.md)
+- [NSIGHT_NCU_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/NSIGHT_NCU_RESULTS_REPORT.md)
+- [NSIGHT_NSYS_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/NSIGHT_NSYS_RESULTS_REPORT.md)
+
+Workload tables:
+
 - [workloads/small_attention_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/small_attention_workloads.csv)
-
-Current CUDA result notes:
-
-- [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/CUDA_RESULTS_REPORT.md)
-- [PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/PROFILING_RESULTS_REPORT.md)
-- [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_RESULTS_REPORT.md)
-- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_PROFILING_RESULTS_REPORT.md)
-- [HEAD_DIMENSION_STUDY_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_STUDY_PLAN.md)
-- [HEAD_DIMENSION_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/HEAD_DIMENSION_RESULTS_REPORT.md)
-- [TRITON_EXPERIMENT_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_EXPERIMENT_PLAN.md)
-- [TRITON_QK_SMOKE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_SMOKE_REPORT.md)
-- [TRITON_QK_TILE_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_TILE_SWEEP_REPORT.md)
-- [TRITON_QK_SEQ4096_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/TRITON_QK_SEQ4096_RESULTS_REPORT.md)
-- [NSIGHT_SETUP_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_SETUP_NOTES.md)
-- [NSIGHT_NCU_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_NCU_RESULTS_REPORT.md)
-- [NSIGHT_NSYS_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/NSIGHT_NSYS_RESULTS_REPORT.md)
 
 ## Methodological Notes
 
@@ -229,6 +242,13 @@ For the CUDA stage, the next questions are:
 flashattention-profiling/
 ├── README.md
 ├── requirements.txt
+├── docs/
+│   ├── setup/
+│   ├── plans/
+│   ├── reports/
+│   ├── reading/
+│   ├── templates/
+│   └── notes/
 ├── src/
 │   ├── check_environment.py
 │   ├── attention.py
@@ -242,6 +262,6 @@ flashattention-profiling/
 
 ## Current Status
 
-The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes the first CUDA baseline and a PyTorch Profiler pass on the UGA CUDA server. My next concrete step is to run the boundary sweep across head dimension, dtype, and causal mode before moving into Triton.
+The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes CUDA SDPA/FlashAttention baselines, Nsight setup notes, Triton QK experiments, a forward-only Triton fused-attention kernel, and an expanded fused-attention configuration sweep.
 
-See [BOUNDARY_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_SWEEP_PLAN.md).
+See [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md).

@@ -91,7 +91,7 @@ This suggests that the result should be repeated before making a strong claim, b
 
 Follow-up profiling weakened this interpretation. The candidate case used the same FlashAttention kernel for both `sdpa_auto` and `flash_forced`, with nearly identical CUDA kernel time. See:
 
-- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/BOUNDARY_PROFILING_RESULTS_REPORT.md)
+- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/BOUNDARY_PROFILING_RESULTS_REPORT.md)
 
 ## Other Observations
 

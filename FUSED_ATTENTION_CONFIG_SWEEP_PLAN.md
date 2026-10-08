@@ -2,7 +2,7 @@
 
 ## Why This Experiment Exists
 
-The first Triton fused-attention kernel is correct, but it is slower than PyTorch SDPA on the longer prefill workload. This is expected for an initial kernel. The next question is not whether Triton is "good" or "bad", but whether different workload shapes prefer different Triton tile configurations.
+The first Triton fused-attention kernel is correct, but it is slower than PyTorch SDPA on the longer prefill workload. This is expected for an initial kernel. The next question is not whether Triton is "good" or "bad", but whether different workload shapes prefer different Triton configurations.
 
 This experiment is a small bridge between the paper-reading task and the code in this repo:
 
@@ -13,7 +13,7 @@ This experiment is a small bridge between the paper-reading task and the code in
 ## Experiment Question
 
 ```text
-Do different attention workloads prefer different BLOCK_M/BLOCK_N choices?
+Do different attention workloads prefer different Triton tile and launch configurations?
 ```
 
 If the answer is yes, then a future research direction could be:
@@ -34,7 +34,7 @@ The script:
 
 - loads the same workload table used by the fused-attention benchmark;
 - runs PyTorch SDPA once per supported workload;
-- sweeps several Triton `BLOCK_M` and `BLOCK_N` values;
+- sweeps several Triton `BLOCK_M`, `BLOCK_N`, `num_warps`, and `num_stages` values;
 - checks correctness for every Triton config;
 - marks the fastest correct Triton config per workload as the local oracle;
 - writes detailed results, summary results, and metadata.
@@ -46,6 +46,8 @@ python src/sweep_triton_fused_attention_configs.py \
   --workloads workloads/small_attention_workloads.csv \
   --block-ms 32 64 \
   --block-ns 32 64 \
+  --num-warps-values 4 \
+  --num-stages-values 2 3 \
   --warmup 5 \
   --trials 10 \
   --output results/triton_fused_attention_config_sweep_smoke.csv \
@@ -58,8 +60,10 @@ python src/sweep_triton_fused_attention_configs.py \
 ```bash
 python src/sweep_triton_fused_attention_configs.py \
   --workloads workloads/small_attention_workloads.csv \
-  --block-ms 32 64 128 \
-  --block-ns 32 64 128 \
+  --block-ms 32 64 \
+  --block-ns 32 64 \
+  --num-warps-values 4 8 \
+  --num-stages-values 2 3 \
   --warmup 20 \
   --trials 100 \
   --output results/triton_fused_attention_config_sweep.csv \
@@ -78,6 +82,7 @@ results/triton_fused_attention_config_sweep_summary.csv
 Important columns:
 
 - `best_config_id`: fastest correct Triton config within the small sweep.
+- `best_num_warps` and `best_num_stages`: launch settings for the fastest correct Triton config.
 - `best_speedup_over_torch_sdpa`: whether the best Triton config beats or trails PyTorch SDPA.
 - `tested_triton_configs`: number of valid configs tested.
 

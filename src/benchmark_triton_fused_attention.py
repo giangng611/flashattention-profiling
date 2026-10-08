@@ -132,6 +132,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--trials", type=int, default=30)
     parser.add_argument("--block-m", type=int, default=64)
     parser.add_argument("--block-n", type=int, default=64)
+    parser.add_argument("--num-warps", type=int, default=4)
+    parser.add_argument("--num-stages", type=int, default=3)
     parser.add_argument("--output", type=Path, default=Path("results/triton_fused_attention.csv"))
     parser.add_argument(
         "--metadata-output",
@@ -216,6 +218,8 @@ def triton_attention(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, workload
         args.block_n,
         next_power_of_2(workload.head_dim),
         workload.causal,
+        num_warps=args.num_warps,
+        num_stages=args.num_stages,
     )
     return output
 
@@ -314,6 +318,8 @@ def base_row(workload: Workload, method: str, args: argparse.Namespace) -> dict[
         "causal": workload.causal,
         "block_m": args.block_m if method == "triton_fused_attention" else None,
         "block_n": args.block_n if method == "triton_fused_attention" else None,
+        "num_warps": args.num_warps if method == "triton_fused_attention" else None,
+        "num_stages": args.num_stages if method == "triton_fused_attention" else None,
     }
 
 
@@ -398,6 +404,8 @@ def metadata(args: argparse.Namespace, workloads: list[Workload]) -> dict[str, o
         "trials": args.trials,
         "block_m": args.block_m,
         "block_n": args.block_n,
+        "num_warps": args.num_warps,
+        "num_stages": args.num_stages,
         "seed": args.seed,
         "workload_count": len(workloads),
         "note": "Forward-only Triton fused-attention benchmark. Initial kernel supports self-attention with q_heads == kv_heads.",

@@ -1,9 +1,9 @@
-"""Sweep fixed Triton fused-attention tile configurations.
+"""Sweep fixed Triton fused-attention configurations.
 
 This script is the next small step after the first fused-attention benchmark.
-It measures whether different workload shapes prefer different BLOCK_M/BLOCK_N
-choices. The fastest correct Triton result per workload is treated as the
-oracle configuration for that small search space.
+It measures whether different workload shapes prefer different tile and launch
+choices. The fastest correct Triton result per workload is treated as the oracle
+configuration for that small search space.
 """
 
 from __future__ import annotations
@@ -24,7 +24,6 @@ except ImportError:
 from benchmark_triton_fused_attention import (
     add_metrics,
     base_row,
-    benchmark_workload,
     load_workloads,
     metadata,
     skipped_rows,
@@ -40,6 +39,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--workloads", type=Path, default=Path("workloads/small_attention_workloads.csv"))
     parser.add_argument("--block-ms", type=int, nargs="+", default=[32, 64, 128])
     parser.add_argument("--block-ns", type=int, nargs="+", default=[32, 64, 128])
+    parser.add_argument("--num-warps-values", type=int, nargs="+", default=[4])
+    parser.add_argument("--num-stages-values", type=int, nargs="+", default=[3])
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--trials", type=int, default=30)
     parser.add_argument("--seed", type=int, default=0)
@@ -57,10 +58,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def kernel_args(args: argparse.Namespace, block_m: int, block_n: int) -> SimpleNamespace:
+def kernel_args(
+    args: argparse.Namespace,
+    block_m: int,
+    block_n: int,
+    num_warps: int,
+    num_stages: int,
+) -> SimpleNamespace:
     return SimpleNamespace(
         block_m=block_m,
         block_n=block_n,
+        num_warps=num_warps,
+        num_stages=num_stages,
         warmup=args.warmup,
         trials=args.trials,
         seed=args.seed,
@@ -87,7 +96,13 @@ def benchmark_torch_once(workload, args: argparse.Namespace) -> tuple[dict[str, 
     if not supported:
         return None, None, None, None
 
-    config_args = kernel_args(args, args.block_ms[0], args.block_ns[0])
+    config_args = kernel_args(
+        args,
+        args.block_ms[0],
+        args.block_ns[0],
+        args.num_warps_values[0],
+        args.num_stages_values[0],
+    )
     q, k, v = benchmark_inputs(workload)
     row = base_row(workload, "torch_sdpa", config_args)
     torch.cuda.empty_cache()
@@ -120,34 +135,41 @@ def benchmark_triton_configs(workload, q, k, v, args: argparse.Namespace, torch_
     rows: list[dict[str, object]] = []
     for block_m in args.block_ms:
         for block_n in args.block_ns:
-            config_args = kernel_args(args, block_m, block_n)
-            print(f"  triton config block_m={block_m} block_n={block_n}")
-            try:
-                workload_rows = benchmark_workload_with_existing_inputs(workload, q, k, v, config_args)
-            except Exception as exc:
-                row = base_row(workload, "triton_fused_attention", config_args)
-                row.update(
-                    {
-                        "status": "error",
-                        "error": type(exc).__name__ + ": " + str(exc),
-                        "mean_latency_ms": None,
-                        "median_latency_ms": None,
-                        "min_latency_ms": None,
-                        "max_latency_ms": None,
-                        "std_latency_ms": None,
-                        "memory_allocated_bytes": None,
-                        "correctness_max_abs_diff": None,
-                        "correctness_mean_abs_diff": None,
-                        "correctness_passed": False,
-                    }
-                )
-                workload_rows = [add_metrics(row, workload)]
+            for num_warps in args.num_warps_values:
+                for num_stages in args.num_stages_values:
+                    config_args = kernel_args(args, block_m, block_n, num_warps, num_stages)
+                    config_id = f"bm{block_m}_bn{block_n}_w{num_warps}_s{num_stages}"
+                    print(
+                        "  triton config "
+                        f"block_m={block_m} block_n={block_n} "
+                        f"num_warps={num_warps} num_stages={num_stages}"
+                    )
+                    try:
+                        workload_rows = benchmark_workload_with_existing_inputs(workload, q, k, v, config_args)
+                    except Exception as exc:
+                        row = base_row(workload, "triton_fused_attention", config_args)
+                        row.update(
+                            {
+                                "status": "error",
+                                "error": type(exc).__name__ + ": " + str(exc),
+                                "mean_latency_ms": None,
+                                "median_latency_ms": None,
+                                "min_latency_ms": None,
+                                "max_latency_ms": None,
+                                "std_latency_ms": None,
+                                "memory_allocated_bytes": None,
+                                "correctness_max_abs_diff": None,
+                                "correctness_mean_abs_diff": None,
+                                "correctness_passed": False,
+                            }
+                        )
+                        workload_rows = [add_metrics(row, workload)]
 
-            for row in workload_rows:
-                row["config_id"] = f"bm{block_m}_bn{block_n}"
-                row["is_oracle"] = False
-                row["oracle_gap_pct"] = None
-                rows.append(add_config_metrics(row, torch_median_ms))
+                    for row in workload_rows:
+                        row["config_id"] = config_id
+                        row["is_oracle"] = False
+                        row["oracle_gap_pct"] = None
+                        rows.append(add_config_metrics(row, torch_median_ms))
     return rows
 
 
@@ -206,6 +228,8 @@ def summarize(rows: list[dict[str, object]]) -> list[dict[str, object]]:
                     "best_config_id": None,
                     "best_block_m": None,
                     "best_block_n": None,
+                    "best_num_warps": None,
+                    "best_num_stages": None,
                     "best_triton_median_latency_ms": None,
                     "best_triton_median_tflops": None,
                     "best_speedup_over_torch_sdpa": None,
@@ -225,6 +249,8 @@ def summarize(rows: list[dict[str, object]]) -> list[dict[str, object]]:
                 "best_config_id": best["config_id"],
                 "best_block_m": best["block_m"],
                 "best_block_n": best["block_n"],
+                "best_num_warps": best["num_warps"],
+                "best_num_stages": best["num_stages"],
                 "best_triton_median_latency_ms": best["median_latency_ms"],
                 "best_triton_median_tflops": best["median_tflops"],
                 "best_speedup_over_torch_sdpa": best["speedup_over_torch_sdpa"],
@@ -258,7 +284,13 @@ def main() -> None:
         print(f"\nworkload={workload.name}")
         supported, reason = workload_supported(workload)
         if not supported:
-            config_args = kernel_args(args, args.block_ms[0], args.block_ns[0])
+            config_args = kernel_args(
+                args,
+                args.block_ms[0],
+                args.block_ns[0],
+                args.num_warps_values[0],
+                args.num_stages_values[0],
+            )
             skipped = skipped_rows(workload, reason, config_args)
             for row in skipped:
                 row["config_id"] = "unsupported"
@@ -282,14 +314,27 @@ def main() -> None:
     write_csv(args.output, rows)
     write_csv(args.summary_output, summary_rows)
 
-    meta_args = kernel_args(args, args.block_ms[0], args.block_ns[0])
+    meta_args = kernel_args(
+        args,
+        args.block_ms[0],
+        args.block_ns[0],
+        args.num_warps_values[0],
+        args.num_stages_values[0],
+    )
     meta = metadata(meta_args, workloads)
     meta.update(
         {
             "block_ms": args.block_ms,
             "block_ns": args.block_ns,
-            "config_count": len(args.block_ms) * len(args.block_ns),
-            "note": "Triton fused-attention tile sweep. The fastest correct Triton config per workload is marked as the oracle within this small search space.",
+            "num_warps_values": args.num_warps_values,
+            "num_stages_values": args.num_stages_values,
+            "config_count": (
+                len(args.block_ms)
+                * len(args.block_ns)
+                * len(args.num_warps_values)
+                * len(args.num_stages_values)
+            ),
+            "note": "Triton fused-attention config sweep. The fastest correct Triton config per workload is marked as the oracle within this small search space.",
         }
     )
     args.metadata_output.parent.mkdir(parents=True, exist_ok=True)

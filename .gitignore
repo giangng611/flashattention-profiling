@@ -10,6 +10,9 @@ env/
 
 results/**/*.csv
 results/**/*.json
+!results/triton_fused_attention_config_sweep.csv
+!results/triton_fused_attention_config_sweep_summary.csv
+!results/triton_fused_attention_config_sweep_metadata.json
 plots/**/*.png
 profiling/**/*.qdrep
 profiling/**/*.nsys-rep

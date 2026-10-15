@@ -181,12 +181,14 @@ Current plans and templates:
 - [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
 - [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FULL_ATTENTION_WORKLOAD_PLAN.md)
 - [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/NEXT_REPORT_TEMPLATE.md)
+- [WEEKLY_TRACKER_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/WEEKLY_TRACKER_TEMPLATE.md)
 
 Reading and progress notes:
 
 - [PAPER_REVIEW_TABLE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reading/PAPER_REVIEW_TABLE.md)
 - [WEEKLY_PROGRESS.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/WEEKLY_PROGRESS.md)
 - [EXPERIMENT_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/EXPERIMENT_NOTES.md)
+- [WEEK3_REPRODUCIBILITY.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/WEEK3_REPRODUCIBILITY.md)
 
 Current main report:
 
@@ -208,6 +210,7 @@ Earlier experiment reports:
 Workload tables:
 
 - [workloads/small_attention_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/small_attention_workloads.csv)
+- [workloads/week3_config_sweep_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/week3_config_sweep_workloads.csv)
 
 ## Methodological Notes
 

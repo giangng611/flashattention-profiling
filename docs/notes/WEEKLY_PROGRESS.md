@@ -47,17 +47,62 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Build a small table of real LLM workload shapes.
 - Evaluate correctness and latency against PyTorch SDPA for those shapes.
 
-## Week 3 Plan
+## Week 3 Research Tracker
 
-### Main Results And Observations
+### Question investigated
 
-- To be filled after the full fused-attention experiments.
+- Do different dense prefill workloads prefer different Triton tile and launch configurations?
 
-### Problems Or Limitations
+### What I implemented
 
-- To be filled.
+- Built a forward-only fused-attention Triton kernel with correctness checks against PyTorch SDPA.
+- Swept 16 combinations of `BLOCK_M`, `BLOCK_N`, `num_warps`, and `num_stages` on four supported workloads.
 
-### Plan For Following Week
+### Main findings
 
-- To be filled.
+- Each supported workload selected a different fastest configuration within the tested space.
+- The best Triton configuration beat PyTorch SDPA on two short/medium cases but remained slower on the 2048-token case.
+- These results are preliminary evidence that configuration choice is workload-dependent; they do not show that a selector generalizes.
 
+### Unsuccessful attempts / limitations
+
+- The kernel supports dense self-attention only; decode and GQA are unsupported.
+- The experiment contains only four supported FP16 workloads and 16 configurations.
+- The original `12 Q heads / 12 KV heads` workloads were incorrectly described as Qwen-like and are now labeled dense Qwen-shaped proxies.
+- The raw detailed CSV, summary CSV, and metadata JSON were not found locally during the Week 4 audit and must be recovered from the CUDA server if available.
+
+### Interpretation
+
+- The result is sufficient to motivate a larger experiment, but not to claim that autotuning is expensive enough or that a selector will work.
+
+### Next step
+
+- Start the CURO proposal outline and expand the dense-prefill experiment to test tuning cost and held-out selection.
+
+## Week 4 Research Tracker
+
+### Question investigated
+
+- Can a lightweight selector approach exhaustive-tuning performance on unseen attention workloads while testing far fewer configurations?
+
+### What I implemented
+
+- Corrected the Week 3 workload taxonomy and added explicit model-derived versus synthetic and supported versus unsupported metadata.
+- Preserved a corrected-label snapshot of the Week 3 workload set and documented the missing raw artifacts without reconstructing them.
+- Expanded the paper table using the comparison fields requested for configuration-selection work.
+
+### Main findings
+
+- In progress.
+
+### Unsuccessful attempts / limitations
+
+- No expanded sweep or selector result exists yet.
+
+### Interpretation
+
+- In progress.
+
+### Next step
+
+- Add absolute and relative correctness tolerances, BF16 cases, and separate compilation/benchmark timing before the expanded sweep.

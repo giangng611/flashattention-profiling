@@ -44,15 +44,20 @@ class Workload:
     head_dim: int
     dtype: str
     causal: bool
+    source: str = "unspecified"
+    expected_status: str = "auto"
+    notes: str = ""
 
 
 DEFAULT_WORKLOADS = [
-    Workload("toy-prefill-d64", "prefill", 1, 512, 512, 8, 8, 64, "float16", True),
-    Workload("toy-prefill-d128", "prefill", 1, 512, 512, 8, 8, 128, "float16", True),
-    Workload("qwen2.5-1.5b-like-prefill-512", "prefill", 1, 512, 512, 12, 12, 128, "float16", True),
-    Workload("qwen2.5-1.5b-like-prefill-2048", "prefill", 1, 2048, 2048, 12, 12, 128, "float16", True),
-    Workload("qwen2.5-1.5b-like-decode-2048", "decode", 1, 1, 2048, 12, 12, 128, "float16", True),
-    Workload("qwen2.5-7b-like-prefill-512-gqa", "prefill", 1, 512, 512, 28, 4, 128, "float16", True),
+    Workload("toy-prefill-d64", "prefill", 1, 512, 512, 8, 8, 64, "float16", True, "synthetic", "supported"),
+    Workload("toy-prefill-d128", "prefill", 1, 512, 512, 8, 8, 128, "float16", True, "synthetic", "supported"),
+    Workload("dense-qwen-shaped-proxy-prefill-512", "prefill", 1, 512, 512, 12, 12, 128, "float16", True, "synthetic_dense_proxy", "supported"),
+    Workload("dense-qwen-shaped-proxy-prefill-2048", "prefill", 1, 2048, 2048, 12, 12, 128, "float16", True, "synthetic_dense_proxy", "supported"),
+    Workload("dense-qwen-shaped-proxy-decode-2048", "decode", 1, 1, 2048, 12, 12, 128, "float16", True, "synthetic_dense_proxy", "unsupported", "q_len differs from kv_len"),
+    Workload("qwen2.5-1.5b-prefill-512-gqa", "prefill", 1, 512, 512, 12, 2, 128, "float16", True, "model_derived", "unsupported", "GQA requires query_heads != kv_heads"),
+    Workload("qwen2.5-1.5b-prefill-2048-gqa", "prefill", 1, 2048, 2048, 12, 2, 128, "float16", True, "model_derived", "unsupported", "GQA requires query_heads != kv_heads"),
+    Workload("qwen2.5-7b-prefill-512-gqa", "prefill", 1, 512, 512, 28, 4, 128, "float16", True, "model_derived", "unsupported", "GQA requires query_heads != kv_heads"),
 ]
 
 
@@ -175,6 +180,9 @@ def load_workloads(path: Path | None) -> list[Workload]:
                 head_dim=int(row["head_dim"]),
                 dtype=row["dtype"],
                 causal=row["causal"].lower() == "true",
+                source=row.get("source", "unspecified") or "unspecified",
+                expected_status=row.get("expected_status", "auto") or "auto",
+                notes=row.get("notes", "") or "",
             )
             for row in reader
         ]
@@ -316,6 +324,9 @@ def base_row(workload: Workload, method: str, args: argparse.Namespace) -> dict[
         "head_dim": workload.head_dim,
         "dtype": workload.dtype,
         "causal": workload.causal,
+        "source": workload.source,
+        "expected_status": workload.expected_status,
+        "workload_notes": workload.notes,
         "block_m": args.block_m if method == "triton_fused_attention" else None,
         "block_n": args.block_n if method == "triton_fused_attention" else None,
         "num_warps": args.num_warps if method == "triton_fused_attention" else None,

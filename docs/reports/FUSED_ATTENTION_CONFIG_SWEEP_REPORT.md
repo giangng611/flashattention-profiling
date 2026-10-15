@@ -27,20 +27,23 @@ src/sweep_triton_fused_attention_configs.py
 Workload file:
 
 ```text
-workloads/small_attention_workloads.csv
+workloads/week3_config_sweep_workloads.csv
 ```
 
-Stable command:
+The Week 3 run originally used `workloads/small_attention_workloads.csv`. The snapshot above preserves exactly the six shapes from that run while applying the corrected workload labels described below.
+
+Reproduction command with the explicit Week 3 seed:
 
 ```bash
 python src/sweep_triton_fused_attention_configs.py \
-  --workloads workloads/small_attention_workloads.csv \
+  --workloads workloads/week3_config_sweep_workloads.csv \
   --block-ms 32 64 \
   --block-ns 32 64 \
   --num-warps-values 4 8 \
   --num-stages-values 2 3 \
   --warmup 20 \
   --trials 100 \
+  --seed 0 \
   --output results/triton_fused_attention_config_sweep.csv \
   --summary-output results/triton_fused_attention_config_sweep_summary.csv \
   --metadata-output results/triton_fused_attention_config_sweep_metadata.json
@@ -54,6 +57,9 @@ Environment:
 - Triton: 3.8.0
 - dtype: float16
 - causal attention: true
+- seed: 0
+
+The report and workload snapshot are preserved in this repository. The detailed CSV, summary CSV, and metadata JSON named by the command were not present on the local machine during the Week 4 repository audit; they must be copied from the CUDA server if still available. They have not been reconstructed from this summary table.
 
 ## Stable Sweep Summary
 
@@ -72,10 +78,12 @@ This gives 16 Triton configurations per supported workload. For each supported w
 |---|---|---:|---|---:|---:|---:|---:|
 | `toy-prefill-d64` | ok | 0.0420 | `bm64_bn64_w4_s3` | 0.0440 | 6.11 | 0.953x | 16 |
 | `toy-prefill-d128` | ok | 0.0840 | `bm32_bn32_w4_s3` | 0.0594 | 9.06 | 1.414x | 16 |
-| `qwen2.5-1.5b-like-prefill-512` | ok | 0.0988 | `bm32_bn64_w4_s2` | 0.0788 | 10.23 | 1.253x | 16 |
-| `qwen2.5-1.5b-like-prefill-2048` | ok | 0.2970 | `bm32_bn32_w4_s2` | 0.5130 | 25.13 | 0.579x | 16 |
-| `qwen2.5-1.5b-like-decode-2048` | skipped | | | | | | 0 |
-| `qwen2.5-7b-like-prefill-512-gqa` | skipped | | | | | | 0 |
+| `dense-qwen-shaped-proxy-prefill-512` | ok | 0.0988 | `bm32_bn64_w4_s2` | 0.0788 | 10.23 | 1.253x | 16 |
+| `dense-qwen-shaped-proxy-prefill-2048` | ok | 0.2970 | `bm32_bn32_w4_s2` | 0.5130 | 25.13 | 0.579x | 16 |
+| `dense-qwen-shaped-proxy-decode-2048` | skipped | | | | | | 0 |
+| `qwen2.5-7b-prefill-512-gqa` | skipped | | | | | | 0 |
+
+The two supported `12 Q heads / 12 KV heads` workloads are relabeled post-hoc as dense Qwen-shaped proxies. Their shapes and measurements are unchanged. They must not be presented as actual Qwen GQA workloads.
 
 The run also checked for configuration errors and correctness failures. No Triton configuration in this expanded sweep failed to run, and no valid configuration failed the correctness check.
 
@@ -89,10 +97,10 @@ The same Triton kernel does not choose the same configuration for every supporte
 |---|---|
 | `toy-prefill-d64` | `bm64_bn64_w4_s3` |
 | `toy-prefill-d128` | `bm32_bn32_w4_s3` |
-| `qwen2.5-1.5b-like-prefill-512` | `bm32_bn64_w4_s2` |
-| `qwen2.5-1.5b-like-prefill-2048` | `bm32_bn32_w4_s2` |
+| `dense-qwen-shaped-proxy-prefill-512` | `bm32_bn64_w4_s2` |
+| `dense-qwen-shaped-proxy-prefill-2048` | `bm32_bn32_w4_s2` |
 
-This is the main useful result from this sweep. Even in a small search space, the best choice is not universal. The `head_dim=64` toy workload preferred a larger tile, while the `head_dim=128` workloads preferred smaller `BLOCK_M=32` tiles. The launch settings also mattered: all best configs used `num_warps=4`, but the toy workloads selected `num_stages=3`, while the Qwen-like workloads selected `num_stages=2`.
+This is the main useful result from this sweep. Even in a small search space, the best choice is not universal. The `head_dim=64` toy workload preferred a larger tile, while the `head_dim=128` workloads preferred smaller `BLOCK_M=32` tiles. The launch settings also mattered: all best configs used `num_warps=4`, but the toy workloads selected `num_stages=3`, while the dense Qwen-shaped proxy workloads selected `num_stages=2`.
 
 This supports the idea that attention kernel configuration should be considered workload-aware rather than fixed once for all shapes.
 
@@ -104,8 +112,8 @@ The previous tile-only sweep suggested that the Triton baseline was consistently
 |---|---:|
 | `toy-prefill-d64` | 0.953x |
 | `toy-prefill-d128` | 1.414x |
-| `qwen2.5-1.5b-like-prefill-512` | 1.253x |
-| `qwen2.5-1.5b-like-prefill-2048` | 0.579x |
+| `dense-qwen-shaped-proxy-prefill-512` | 1.253x |
+| `dense-qwen-shaped-proxy-prefill-2048` | 0.579x |
 
 This means the baseline Triton kernel can outperform PyTorch SDPA for some short or medium prefill shapes, but it still trails badly on the longer 2048-token prefill workload. The result is therefore not "Triton is faster" or "Triton is slower." The better statement is:
 
@@ -115,7 +123,7 @@ The relative performance depends strongly on workload shape and kernel configura
 
 ### 3. The long prefill workload remains the largest gap
 
-The 2048-token Qwen-like prefill workload is still much slower than PyTorch SDPA:
+The 2048-token dense Qwen-shaped proxy is still much slower than PyTorch SDPA:
 
 ```text
 PyTorch SDPA: 0.2970 ms
@@ -131,8 +139,10 @@ Two workload rows were skipped intentionally:
 
 | Workload | Reason |
 |---|---|
-| `qwen2.5-1.5b-like-decode-2048` | current Triton kernel supports self-attention only, so `q_len` must equal `kv_len` |
-| `qwen2.5-7b-like-prefill-512-gqa` | current Triton kernel does not support GQA/MQA yet |
+| `dense-qwen-shaped-proxy-decode-2048` | current Triton kernel supports self-attention only, so `q_len` must equal `kv_len` |
+| `qwen2.5-7b-prefill-512-gqa` | current Triton kernel does not support GQA/MQA yet |
+
+The corrected main workload table also contains actual Qwen2.5-1.5B reference rows with `12 Q heads / 2 KV heads`. They are explicitly labeled `unsupported` and were not part of the Week 3 measurements.
 
 This limitation is important for the next research step. Real LLM serving depends heavily on decode and GQA. The current experiment is only about dense prefill self-attention.
 
@@ -167,20 +177,19 @@ The current result does not prove that this is a full paper topic yet. It only s
 
 The most useful next steps are:
 
-1. Keep the current expanded sweep as the main evidence for the next update.
-2. Add a simple selector and compare it against the local oracle.
-3. Add GQA support so Qwen-like larger-model workloads are not skipped.
-4. Add a decode-specific path for `q_len=1, kv_len >> 1`.
-5. Eventually compare three selectors:
-   - fixed config;
-   - exhaustive sweep oracle;
-   - simple workload-aware rule.
+1. Start the CURO proposal outline now using this sweep only as preliminary evidence.
+2. Expand to 12–20 supported dense prefill workloads with FP16 and BF16.
+3. Expand to approximately 32–64 valid configurations and measure compilation and benchmarking cost separately.
+4. Split workloads into development and held-out sets.
+5. Compare fixed, nearest-workload, budgeted-random, simple-rule/decision-tree, and exhaustive-oracle baselines before evaluating a learned top-k selector.
+
+GQA and decode are later extensions rather than the next implementation target.
 
 The next hypothesis to test could be:
 
 ```text
-A simple rule based on head_dim and phase can select a near-oracle Triton
-configuration while testing fewer configs than exhaustive search.
+A lightweight selector can approach exhaustive-tuning performance on unseen
+attention workloads while testing far fewer configurations.
 ```
 
 ## Current Interpretation In One Paragraph

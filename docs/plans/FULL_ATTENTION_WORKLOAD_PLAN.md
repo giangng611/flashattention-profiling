@@ -100,16 +100,16 @@ I should treat the first results as an implementation smoke test, then use them 
 
 Start with a small hand-built workload table:
 
-| model/source | phase | batch | query length | KV length | query heads | KV heads | head_dim | dtype | causal |
-|---|---|---:|---:|---:|---:|---:|---:|---|---|
-| Qwen2.5-1.5B-like | prefill | 1 | 512 | 512 | 12 | 12 | 128 | fp16 | true |
-| Qwen2.5-1.5B-like | prefill | 1 | 2048 | 2048 | 12 | 12 | 128 | fp16 | true |
-| Qwen2.5-1.5B-like | decode | 1 | 1 | 2048 | 12 | 12 | 128 | fp16 | true |
-| Qwen2.5-7B-like | prefill | 1 | 512 | 512 | 28 | 4 | 128 | fp16 | true |
-| Qwen2.5-7B-like | prefill | 1 | 2048 | 2048 | 28 | 4 | 128 | fp16 | true |
-| Qwen2.5-7B-like | decode | 1 | 1 | 2048 | 28 | 4 | 128 | fp16 | true |
+| model/source | phase | batch | query length | KV length | query heads | KV heads | head_dim | dtype | causal | expected status |
+|---|---|---:|---:|---:|---:|---:|---:|---|---|---|
+| Dense Qwen-shaped proxy | prefill | 1 | 512 | 512 | 12 | 12 | 128 | fp16 | true | supported |
+| Dense Qwen-shaped proxy | prefill | 1 | 2048 | 2048 | 12 | 12 | 128 | fp16 | true | supported |
+| Dense Qwen-shaped proxy | decode | 1 | 1 | 2048 | 12 | 12 | 128 | fp16 | true | unsupported: unequal sequence lengths |
+| Qwen2.5-1.5B shape | prefill | 1 | 512 | 512 | 12 | 2 | 128 | fp16 | true | unsupported: GQA |
+| Qwen2.5-1.5B shape | prefill | 1 | 2048 | 2048 | 12 | 2 | 128 | fp16 | true | unsupported: GQA |
+| Qwen2.5-7B shape | prefill | 1 | 512 | 512 | 28 | 4 | 128 | fp16 | true | unsupported: GQA |
 
-These shapes should be verified against model configs before I use them in a report. For the first implementation pass, they are a starting workload table.
+The supported `12/12` rows are synthetic dense proxies, not actual Qwen attention. The official configs show that [Qwen2.5-1.5B uses 12 query heads and 2 KV heads](https://huggingface.co/Qwen/Qwen2.5-1.5B/blob/main/config.json), while [Qwen2.5-7B uses 28 query heads and 4 KV heads](https://huggingface.co/Qwen/Qwen2.5-7B/blob/main/config.json). The model-derived GQA rows remain explicit unsupported references until the kernel supports `query_heads != kv_heads`.
 
 The same starter table is also saved as:
 

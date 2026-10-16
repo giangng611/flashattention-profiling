@@ -1,45 +1,61 @@
-# Attention Selector Baseline Results
+# Attention Selector Baseline and Repeatability Results
 
-## Result
+## Experimental result
 
-The expanded sweep provides preliminary evidence for workload-aware selection. All 696 successfully executed Triton configurations passed correctness, while 72 attempts failed because eight `BLOCK_N=128, num_stages=3` configurations exceeded RTX 3090 shared-memory capacity on nine `head_dim=128` workloads. Every supported workload retained at least 40 valid candidates.
+Three exhaustive sweeps were completed on the same RTX 3090 with the same 16 supported workloads, 48 declared configurations, 20 warmup iterations, and 100 timed trials. Each run produced 696 valid Triton measurements and 72 resource failures. Every successfully executed configuration passed the numerical correctness check.
 
-The 16 supported workloads selected nine marked local-oracle configurations. Exhaustive tuning across the workload set took 347.6 seconds. Of that total, 273.8 seconds were recorded in successful compile/cache preparation calls and 25.6 seconds in steady-state benchmark calls. These components do not include per-config failed-compile time, and compile preparation can reuse caches, so end-to-end sweep wall time is the safer tuning-cost measurement.
+The resource failures were consistent across all three runs: eight `BLOCK_N=128, num_stages=3` configurations exceeded shared-memory capacity on nine `head_dim=128` workloads. Every workload retained at least 40 valid candidates.
 
-## Held-out comparison
+The first sweep took 347.6 seconds across the workload set. Repetitions 1 and 2 took 24.15 and 24.20 seconds because Triton disk-cache artifacts were already available. The later wall times are useful for repeatability analysis but do not measure cold compilation cost. The original end-to-end wall time remains the safer tuning-cost reference.
 
-The selector policies were fit only on 10 development workloads and evaluated on 6 held-out workloads.
+## Ranking stability
 
-| Method | Configs measured | Candidate fraction | Success | Geometric-mean oracle performance | Mean successful regret | Exact oracle coverage | Estimated tuning-time saving | Meets 90% / 25% target |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| Tutorial-derived project default | 1 | 2.1% | 100% | 77.7% | 30.1% | 0.0% | 97.9% | No |
-| Best fixed development config | 1 | 2.1% | 100% | 84.1% | 19.3% | 0.0% | 97.9% | No |
-| Nearest-workload reuse | 1 | 2.1% | 100% | 85.7% | 17.2% | 0.0% | 97.9% | No |
-| Random search, budget 1 | 1 | 2.1% | 88.5% | 0% including failures | 51.7% | 3.2% | 97.9% | No |
-| Random search, budget 2 | 2 | 4.2% | 98.5% | 0% including failures | 37.7% | 4.5% | 95.8% | No |
-| Random search, budget 4 | 4 | 8.3% | 100% | 81.9% | 23.8% | 8.8% | 91.7% | No |
-| Random search, budget 8 | 8 | 16.7% | 100% | 88.5% | 13.8% | 17.0% | 83.3% | No |
-| Decision-tree ranker, top-2 | 2 | 4.2% | 100% | 92.6% | 8.2% | 16.7% | 95.8% | Yes |
-| Decision-tree ranker, top-4 | 4 | 8.3% | 100% | 96.5% | 3.9% | 50.0% | 91.7% | Yes |
-| Decision-tree ranker, top-8 | 8 | 16.7% | 100% | 99.2% | 0.8% | 66.7% | 83.3% | Yes |
-| Exhaustive local oracle | 48 | 100% | 100% | 100% | 0.0% | 100% | 0.0% | Not applicable |
+Exact fastest-config labels are not stable enough to serve as the only target:
 
-Random budget-1 and budget-2 have a zero aggregate geometric mean because at least one held-out trial sampled only invalid configurations. Their selection success rates were 88.5% and 98.5%, respectively. Random results use 100 seeds; the detailed trial file preserves every workload/seed outcome.
+- all three runs selected the same deterministic top-1 label on 4 of 16 workloads; after accounting for exact latency ties, 5 workloads had at least one common exact-oracle config across all runs;
+- mean pairwise Spearman rank correlation across the full valid config ranking was 0.836;
+- mean pairwise top-4 Jaccard overlap was 0.485;
+- the aggregate oracle was within 1% of each run's oracle on 6 workloads, within 3% on 7, and within 5% on 11;
+- held-out workloads were more stable than development workloads, with mean rank correlation 0.919 and all aggregate oracles within 5% in every run.
 
-The decision-tree top-1 choice is the same as the best fixed development config. Its value begins at top-2, where leaf-specific ranking adds a second candidate. Top-2 reaches the Week 4 target on this split with only 2 of 48 configurations, while top-4 and top-8 reduce regret further.
+One development workload, `dense-prefill-s512-h12-d128-fp16-noncausal`, is a clear outlier: the aggregate oracle is 28.8% slower than the run-0 oracle in that run. Short workloads also show weaker top-k overlap because small absolute latency differences can change the ordering.
+
+These results support oracle-relative performance and top-k coverage as primary metrics. Exact top-1 accuracy should be reported only as a secondary diagnostic.
+
+## Held-out selector comparison using all three runs
+
+For each workload/config pair, the repeated evaluation uses the geometric mean of the three per-run median latencies. Policies are fit on the same 10 development workloads and evaluated on the same 6 held-out workloads. Timing-cost columns still use the first sweep so the warm-cache repetitions do not understate tuning cost.
+
+| Method | Configs measured | Candidate fraction | Success | Geometric-mean oracle performance | Mean successful regret | Estimated tuning-time saving | Meets 90% / 25% target |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Tutorial-derived project default | 1 | 2.1% | 100% | 84.7% | 18.2% | 97.9% | No |
+| Best fixed development config | 1 | 2.1% | 100% | 87.6% | 14.2% | 97.9% | No |
+| Nearest-workload reuse | 1 | 2.1% | 100% | 91.2% | 9.8% | 97.9% | Yes |
+| Random search, budget 1 | 1 | 2.1% | 88.5% | 0% including failures | 41.1% | 97.9% | No |
+| Random search, budget 2 | 2 | 4.2% | 98.5% | 0% including failures | 28.7% | 95.8% | No |
+| Random search, budget 4 | 4 | 8.3% | 100% | 87.2% | 15.6% | 91.7% | No |
+| Random search, budget 8 | 8 | 16.7% | 100% | 93.2% | 7.6% | 83.3% | Yes |
+| Decision-tree ranker, top-2 | 2 | 4.2% | 100% | 94.0% | 6.5% | 95.8% | Yes |
+| Decision-tree ranker, top-4 | 4 | 8.3% | 100% | 96.0% | 4.2% | 91.7% | Yes |
+| Decision-tree ranker, top-8 | 8 | 16.7% | 100% | 98.0% | 2.1% | 83.3% | Yes |
+| Exhaustive local oracle | 48 | 100% | 100% | 100% | 0.0% | 0.0% | Not applicable |
+
+Random budget-1 and budget-2 have zero aggregate geometric mean because some trials sampled only invalid configurations. Random results use 100 seeds and preserve every workload/seed outcome.
+
+The repeated result is more conservative than the first-run result, but the main finding survives. The decision-tree top-2 policy reaches 94.0% of the aggregate local oracle with 2 of 48 configurations. At the same or nearby budgets, it outperforms best fixed and random search. Nearest-workload reuse is also a strong one-config baseline and must remain in future comparisons.
 
 ## Kernel comparison
 
-The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported workloads. The geometric-mean selector results therefore answer a within-Triton configuration-selection question. They do not show that the current Triton kernel is generally faster than PyTorch.
+The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported workloads in the original sweep. The selector experiment therefore answers a within-Triton configuration-selection question. It does not show that the current Triton kernel is generally faster than PyTorch.
 
 ## Limitations
 
-- Two workloads have exact median-latency ties, and several top-two gaps are only 1-3%.
-- Oracle labels come from one benchmark run on one RTX 3090.
-- The 10/6 workload split is small, and the depth-2 tree may be sensitive to the chosen split.
-- Per-config compile measurements are cache-aware and depend on sweep order.
-- Estimated selector tuning time scales the observed exhaustive wall time by configuration fraction; it is not a direct online-selector timing.
+- The three repetitions share one GPU, software environment, workload split, and configuration space.
+- Seeds 1 and 2 reuse Triton disk-cache artifacts and cannot estimate cold compilation cost.
+- The 10/6 split is small. The shallow tree may be sensitive to this particular split.
+- The aggregate geometric mean reduces single-run noise but does not resolve the large outlier noted above.
+- Estimated tuning time scales the original exhaustive wall time by candidate fraction. It is not a direct online-selector timing.
 
 ## Interpretation
 
-The result supports continuing the research direction: a small ranked set clearly outperforms fixed, nearest-workload, and random baselines at comparable budgets on this held-out split. It remains preliminary evidence. Repeated CUDA measurements should verify whether near-tied oracle rankings are stable before the proposal claims generalization or a reliable 90-95% performance guarantee.
+The evidence supports continuing the selector direction and writing the first CURO proposal draft. The defensible claim is that a lightweight top-k ranker can reduce empirical search while retaining high oracle-relative performance on this held-out split. The current evidence does not support a universal performance guarantee, stable exact-oracle prediction, cross-GPU generalization, or Triton superiority over PyTorch SDPA.

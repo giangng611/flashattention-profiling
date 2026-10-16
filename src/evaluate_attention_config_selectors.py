@@ -105,7 +105,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--sweep",
         type=Path,
-        default=Path("results/expanded_attention_sweep.csv"),
+        nargs="+",
+        default=[Path("results/expanded_attention_sweep.csv")],
     )
     parser.add_argument(
         "--sweep-summary",
@@ -199,6 +200,80 @@ def load_sweep(
                     raise ValueError(f"multiple marked oracles for {workload.name}")
                 marked_oracles[workload.name] = config_id
     return workloads, measurements, marked_oracles
+
+
+def aggregate_sweeps(
+    paths: list[Path],
+    config_ids: list[str],
+) -> tuple[dict[str, Workload], dict[tuple[str, str], Measurement], dict[str, str]]:
+    loaded = [load_sweep(path) for path in paths]
+    workloads = loaded[0][0]
+    expected_keys = set(loaded[0][1])
+    for path, (candidate_workloads, measurements, _) in zip(paths[1:], loaded[1:]):
+        if candidate_workloads != workloads:
+            raise ValueError(f"workload definitions differ in {path}")
+        if set(measurements) != expected_keys:
+            raise ValueError(f"workload/configuration grid differs in {path}")
+
+    if len(paths) == 1:
+        return loaded[0]
+
+    aggregated: dict[tuple[str, str], Measurement] = {}
+    for key in sorted(expected_keys):
+        repeated = [measurements[key] for _, measurements, _ in loaded]
+        validity = [measurement.valid for measurement in repeated]
+        if len(set(validity)) != 1:
+            raise ValueError(f"validity differs across repeated sweeps for {key}")
+        if validity[0]:
+            latencies = [
+                measurement.latency_ms
+                for measurement in repeated
+                if measurement.latency_ms is not None
+            ]
+            latency = math.exp(statistics.fmean(math.log(value) for value in latencies))
+            status = "ok"
+            correctness_passed = True
+        else:
+            latency = None
+            status = repeated[0].status
+            correctness_passed = False
+        aggregated[key] = Measurement(
+            status=status,
+            correctness_passed=correctness_passed,
+            latency_ms=latency,
+            compile_or_cache_prepare_ms=repeated[0].compile_or_cache_prepare_ms,
+            benchmark_wall_time_ms=repeated[0].benchmark_wall_time_ms,
+            is_marked_oracle=False,
+        )
+
+    marked_oracles: dict[str, str] = {}
+    for workload_name in workloads:
+        valid_configs = [
+            config_id
+            for config_id in config_ids
+            if aggregated[(workload_name, config_id)].valid
+        ]
+        if not valid_configs:
+            raise ValueError(f"no valid repeated measurements for {workload_name}")
+        marked_oracles[workload_name] = min(
+            valid_configs,
+            key=lambda config_id: (
+                aggregated[(workload_name, config_id)].latency_ms,
+                config_id,
+            ),
+        )
+    aggregated = {
+        key: Measurement(
+            status=measurement.status,
+            correctness_passed=measurement.correctness_passed,
+            latency_ms=measurement.latency_ms,
+            compile_or_cache_prepare_ms=measurement.compile_or_cache_prepare_ms,
+            benchmark_wall_time_ms=measurement.benchmark_wall_time_ms,
+            is_marked_oracle=key[1] == marked_oracles[key[0]],
+        )
+        for key, measurement in aggregated.items()
+    }
+    return workloads, aggregated, marked_oracles
 
 
 def load_sweep_wall_times(path: Path) -> dict[str, float]:
@@ -595,7 +670,7 @@ def main() -> None:
     if args.tutorial_config not in config_ids:
         raise ValueError("tutorial/default configuration is outside the candidate space")
 
-    workloads, measurements, marked_oracles = load_sweep(args.sweep)
+    workloads, measurements, marked_oracles = aggregate_sweeps(args.sweep, config_ids)
     wall_times = load_sweep_wall_times(args.sweep_summary)
     development = sorted(
         (workload for workload in workloads.values() if workload.split == "development"),
@@ -682,8 +757,15 @@ def main() -> None:
     args.metadata_output.parent.mkdir(parents=True, exist_ok=True)
     metadata = {
         "python_version": sys.version,
-        "input_sweep": str(args.sweep),
-        "input_sweep_sha256": sha256(args.sweep),
+        "input_sweeps": [
+            {"path": str(path), "sha256": sha256(path)} for path in args.sweep
+        ],
+        "latency_aggregation": (
+            "single-run median latency"
+            if len(args.sweep) == 1
+            else "geometric mean of per-run median latency"
+        ),
+        "timing_measurement_source": str(args.sweep[0]),
         "input_sweep_summary": str(args.sweep_summary),
         "input_sweep_summary_sha256": sha256(args.sweep_summary),
         "input_configs": str(args.configs),

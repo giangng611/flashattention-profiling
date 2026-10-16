@@ -196,6 +196,10 @@ Current main report:
 - [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
 - [ATTENTION_SELECTOR_BASELINE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md)
 
+Current proposal draft:
+
+- [CURO_PROPOSAL_DRAFT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/proposals/CURO_PROPOSAL_DRAFT.md)
+
 Earlier experiment reports:
 
 - [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/CUDA_RESULTS_REPORT.md)

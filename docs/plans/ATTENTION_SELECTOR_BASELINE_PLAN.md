@@ -12,7 +12,7 @@ Can a lightweight selector approach exhaustive-tuning performance on unseen dens
 - Use the same 48 declared configuration candidates for every method.
 - Treat runtime/resource failures as attempted configurations, not as valid latency measurements.
 
-The evaluation is offline: it replays the preserved exhaustive sweep and therefore does not require CUDA. This makes method comparisons deterministic while retaining the measured latency and failure outcomes from the RTX 3090 run.
+The evaluation is offline: it replays preserved exhaustive sweeps and therefore does not require CUDA. For repeated evaluation, each workload/config latency is the geometric mean of the per-run medians. Timing-cost estimates continue to use the first sweep because later runs reuse the Triton disk cache.
 
 ## Baselines
 
@@ -42,7 +42,10 @@ The target from the Week 4 instructions is 90-95% of local-oracle performance wh
 
 ```bash
 python src/evaluate_attention_config_selectors.py \
-  --sweep results/expanded_attention_sweep.csv \
+  --sweep \
+    results/expanded_attention_sweep.csv \
+    results/expanded_attention_sweep_seed1.csv \
+    results/expanded_attention_sweep_seed2.csv \
   --sweep-summary results/expanded_attention_sweep_summary.csv \
   --configs configs/attention_config_space.csv \
   --tutorial-config bm64_bn64_w4_s3 \
@@ -51,15 +54,15 @@ python src/evaluate_attention_config_selectors.py \
   --seed 0 \
   --tree-max-depth 2 \
   --tree-min-leaf 2 \
-  --trials-output results/attention_selector_trials.csv \
-  --summary-output results/attention_selector_summary.csv \
-  --metadata-output results/attention_selector_metadata.json
+  --trials-output results/attention_selector_repeated_trials.csv \
+  --summary-output results/attention_selector_repeated_summary.csv \
+  --metadata-output results/attention_selector_repeated_metadata.json
 ```
 
 ## Interpretation limits
 
 - The oracle is local to the declared 48-candidate space.
 - The workload split is small and comes from one GPU.
-- The input contains one stable benchmark run, so near-tied oracle labels may not be repeatable.
+- Deterministic top-1 labels agree across all three runs on only 4 of 16 workloads, or 5 of 16 after allowing exact ties. Treat exact winner prediction as secondary to oracle-relative top-k performance.
 - Compile/cache preparation is not a controlled cold-cache measurement.
 - Scaled tuning time is an estimate; only a future online selector run can provide direct selector wall time.

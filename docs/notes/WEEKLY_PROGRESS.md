@@ -95,6 +95,8 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Replaced the absolute-only correctness threshold with combined absolute and relative tolerances.
 - Ran the 48-configuration sweep on an RTX 3090 and preserved the detailed results, summary, and environment metadata.
 - Added offline held-out evaluation for the tutorial-derived project default, best fixed development config, nearest-workload reuse, random search at budgets 1/2/4/8, a shallow decision-tree ranker, and the exhaustive local oracle.
+- Repeated the complete CUDA sweep twice with seeds 1 and 2, preserving detailed results, summaries, logs, and metadata.
+- Added reproducible ranking-stability analysis and reran selector baselines using the geometric mean of three per-run median latencies.
 
 ### Main findings
 
@@ -102,17 +104,21 @@ This file keeps a short record of what I did, what I observed, what did not work
 - The 16 supported workloads selected nine marked oracle configurations. The full sweep took 347.6 seconds across the workload set, although compile/cache timing is order- and cache-dependent.
 - The best fixed development configuration reached 84.1% geometric-mean oracle-relative performance on held-out workloads. The decision-tree ranker reached 92.6% with top-2, 96.5% with top-4, and 99.2% with top-8 while considering at most 16.7% of the 48 candidates.
 - The Triton local oracle beat PyTorch SDPA on only 3 of 16 workloads, so the result supports configuration selection but not a claim that this kernel is generally faster than PyTorch.
+- Deterministic top-1 configs agreed across all three runs on only 4 of 16 workloads; accounting for exact ties raises common-oracle agreement to 5 of 16. The full rankings had mean pairwise Spearman correlation 0.836, so exact winner labels are noisy even when the broader ranking is fairly consistent.
+- On repeated aggregate latency, nearest-workload reuse reached 91.2% of oracle with one config. The decision-tree ranker reached 94.0% with top-2, 96.0% with top-4, and 98.0% with top-8.
 
 ### Unsuccessful attempts / limitations
 
 - Two workloads have exact median-latency ties, and several top configurations differ by only 1-3%; repeated CUDA runs are needed to test oracle-label stability.
 - The dataset has only 10 development and 6 held-out workloads on one RTX 3090. The shallow tree result is preliminary and may be sensitive to the split.
 - Compile preparation is cache-aware rather than a controlled cold-cache measurement, and failed compile attempts have no per-config timing.
+- The two repetitions completed in about 24.2 seconds each because they reused the Triton disk cache; they cannot be used as cold compile-cost measurements.
+- One development workload has a 28.8% worst-run regret for the aggregate oracle, so aggregation does not eliminate every unstable case.
 
 ### Interpretation
 
-- A small ranked candidate set can approach the measured local oracle on this held-out split, and it clearly outperforms fixed, nearest-workload, and random baselines at the same small budgets. This supports continuing the selector direction, but not yet a generalization claim.
+- A small ranked candidate set remains close to the measured local oracle after repeated measurement. Exact top-1 prediction is not a reliable research target; oracle-relative performance from a small top-k set is better supported. This justifies a CURO proposal while keeping the claims limited to the current GPU, workload split, and candidate space.
 
 ### Next step
 
-- Repeat the CUDA latency measurements to quantify oracle-ranking stability, then use the verified evidence in the first CURO proposal draft and decide whether a separate learned ranker is justified.
+- Draft the CURO proposal around top-k configuration selection, then test split sensitivity and direct online selection cost before claiming generalization.

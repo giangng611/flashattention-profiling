@@ -9,12 +9,14 @@ ncu: not available on PATH
 
 This does not necessarily mean the tools cannot be used. They may be installed somewhere else, or I may need to install them under my home directory.
 
+Current disposition: Nsight Systems works for CUDA timeline capture, while Nsight Compute hardware counters remain blocked by server permissions. These tools are useful for targeted kernel diagnosis but are not required to reproduce the current selector results.
+
 ## Check Current Availability
 
 Run:
 
 ```bash
-python src/check_cuda_profilers.py
+.venv/bin/python src/check_cuda_profilers.py
 which nsys
 which ncu
 find $HOME -type f \( -name nsys -o -name ncu \) 2>/dev/null | head
@@ -30,7 +32,7 @@ export PATH=/path/to/nsight/bin:$PATH
 Then rerun:
 
 ```bash
-python src/check_cuda_profilers.py
+.venv/bin/python src/check_cuda_profilers.py
 ```
 
 ## If I Need Local Install
@@ -133,11 +135,7 @@ ERR_NVGPUCTRPERM - The user does not have permission to access NVIDIA GPU Perfor
 
 The default `ncu` set can attach to the process and produce a `.ncu-repz` file, but it does not provide the hardware-counter metrics I wanted for roofline or memory-throughput analysis.
 
-Detailed notes are in:
-
-```text
-NSIGHT_NCU_RESULTS_REPORT.md
-```
+Detailed notes are in [NSIGHT_NCU_RESULTS_REPORT.md](../reports/NSIGHT_NCU_RESULTS_REPORT.md).
 
 I also installed Nsight Systems under my home directory:
 
@@ -157,8 +155,4 @@ Nsight Systems successfully generated a smoke timeline report:
 profiling/nsys_qk_smoke.nsys-rep
 ```
 
-CPU sampling and CPU context-switch tracing were disabled by the server configuration, but the CUDA timeline report was still generated. Detailed notes are in:
-
-```text
-NSIGHT_NSYS_RESULTS_REPORT.md
-```
+CPU sampling and CPU context-switch tracing were disabled by the server configuration, but the CUDA timeline report was still generated. Detailed notes are in [NSIGHT_NSYS_RESULTS_REPORT.md](../reports/NSIGHT_NSYS_RESULTS_REPORT.md).

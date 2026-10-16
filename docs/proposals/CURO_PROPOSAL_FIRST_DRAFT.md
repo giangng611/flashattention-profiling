@@ -1,7 +1,9 @@
 # Reducing Autotuning Cost for GPU Attention Kernels with Workload-Aware Configuration Selection
 
-**Status:** First draft for mentor review  
-**Scope:** Dense prefill attention on NVIDIA GPUs
+- **Status:** First draft for mentor review
+- **Scope:** Dense prefill attention on NVIDIA GPUs
+- **Target term:** Spring 2027, pending renewed confirmation
+- **Faculty supervisor:** ______________________________
 
 ## Research proposal
 
@@ -22,6 +24,6 @@ The expected contribution is a reproducible dataset and an evidence-based evalua
 ## Notes for mentor review
 
 - Confirm which CURO application or course format this draft should target.
-- Confirm the faculty mentor name and project period before submission.
+- I discussed a possible Spring 2027 CURO project with Dr. Wenwen Wang near the beginning of the semester and received an initial positive response. Reconfirm his availability, the application route, and the project period before filling the supervisor field or submitting the proposal.
 - Decide whether cross-GPU testing should remain an extension or a planned objective.
 - The proposal body is 484 words; the title, status, and review notes are excluded from that count.

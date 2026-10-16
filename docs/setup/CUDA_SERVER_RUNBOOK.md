@@ -1,16 +1,18 @@
 # CUDA Server Runbook
 
-This file records the steps for moving from the local Mac/MPS practice benchmark to the CUDA baseline.
+This file records the reproducible CUDA workflow, from the original PyTorch baseline through the expanded Triton sweep and direct selector timing.
 
 ## Goal
 
-Run the attention benchmark on the UGA CUDA machine and collect:
+Run or reproduce the attention experiments on the UGA CUDA machine and preserve:
 
 - exact environment information
 - reproducible CUDA results
 - raw CSV results
 - latency, memory, and speedup plots
 - notes about the most significant performance pattern or limitation
+
+The current research pipeline uses 16 supported dense-prefill workloads, 2 unsupported GQA references, 48 candidate configurations, three exhaustive sweeps, CPU-only selector analysis, and a direct tree top-4 versus exhaustive control.
 
 ## Connect To The Server
 
@@ -50,7 +52,7 @@ Install PyTorch using the CUDA command recommended by the official PyTorch insta
 https://pytorch.org/get-started/locally/
 ```
 
-Then install the remaining dependencies:
+Then install the remaining repository dependencies. CUDA-enabled PyTorch should still come from the official selector rather than being replaced by another wheel:
 
 ```bash
 .venv/bin/python -m pip install pandas matplotlib
@@ -63,6 +65,18 @@ Check the environment:
 ```
 
 Save the output for the report.
+
+Validate the expanded input files before using the GPU:
+
+```bash
+.venv/bin/python src/validate_expanded_sweep_inputs.py
+```
+
+Expected output:
+
+```text
+Validated 16 supported workloads, 2 unsupported references, and 48 candidate configurations.
+```
 
 ## CUDA Smoke Test
 
@@ -167,6 +181,28 @@ If the server login works but CUDA is unavailable:
 1. Save the output of `nvidia-smi`.
 2. Save the output of `src/check_environment.py`.
 3. Save the exact failure message for the next update.
+
+## Expanded Triton Configuration Sweep
+
+The canonical smoke and stable commands are maintained in [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](../plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md). The stable run uses:
+
+```bash
+.venv/bin/python src/sweep_triton_fused_attention_configs.py \
+  --workloads workloads/expanded_dense_prefill_workloads.csv \
+  --configs configs/attention_config_space.csv \
+  --warmup 20 \
+  --trials 100 \
+  --seed 0 \
+  --atol 0.08 \
+  --rtol 0.02 \
+  --output results/expanded_attention_sweep.csv \
+  --summary-output results/expanded_attention_sweep_summary.csv \
+  --metadata-output results/expanded_attention_sweep_metadata.json
+```
+
+Repeat the complete run with seeds 1 and 2 and seed-specific output names. Do not overwrite the seed-0 artifacts. The preserved runs should each contain 16 supported workloads, 696 valid Triton results, 72 resource errors, zero correctness failures, and at least 40 valid configurations per workload.
+
+After all three sweeps are present, run the CPU-only repeatability, selector, and split analyses described in [ATTENTION_SELECTOR_BASELINE_PLAN.md](../plans/ATTENTION_SELECTOR_BASELINE_PLAN.md). These analysis steps can run locally and do not require CUDA.
 
 ## Direct Online Selector Timing
 

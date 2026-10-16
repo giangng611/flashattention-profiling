@@ -1,281 +1,109 @@
-# flashattention-profiling
+# FlashAttention Profiling and Configuration Selection
 
-This repository is my first hands-on experiment for understanding the systems idea behind FlashAttention and FlexInfer: actual performance is not determined by FLOP count alone. Memory movement, hardware utilization, kernel behavior, and runtime decisions can dominate the execution time.
+This repository studies how workload shape affects the performance of a forward Triton dense-prefill attention kernel. The current research question is:
 
-The current goal is intentionally modest. I am not trying to propose a new research problem yet. I am first building a small, reproducible benchmark so that I can collect measurements, understand the performance behavior, and use the results to shape a more focused research direction.
+> Can a lightweight workload-aware selector approach exhaustive-tuning performance on unseen attention workloads while benchmarking far fewer configurations?
 
-## Motivation
+The project began as a PyTorch SDPA/FlashAttention profiling exercise and developed into a small configuration-selection prototype. It is scoped to dense self-attention prefill. GQA, decode, cross-GPU transfer, and end-to-end serving are later extensions.
 
-The two papers I started from operate at different levels of the ML systems stack.
+## Current evidence
 
-FlashAttention focuses on attention inside the GPU memory hierarchy. Its main point is that standard attention materializes large intermediate tensors, especially the attention score matrix, and this can create expensive memory traffic between GPU HBM and on-chip memory. The paper argues that an IO-aware implementation can reduce memory movement and improve wall-clock time.
+- 16 supported dense-prefill workloads and 2 unsupported model-derived Qwen GQA references.
+- FP16/BF16, causal/non-causal, head dimensions 64/128, multiple sequence lengths, and multiple head counts.
+- 48 Triton tile/launch configurations.
+- Three complete RTX 3090 sweeps with 696 valid Triton measurements per run and no correctness failures among successful executions.
+- Required baselines: tutorial-derived default, best fixed development config, nearest-workload reuse, random search, shallow decision-tree top-k, and exhaustive local oracle.
+- Original 10/6 development/held-out evaluation plus 99 additional balanced splits.
+- Direct warm-cache top-4 versus exhaustive timing on the six held-out workloads.
 
-FlexInfer focuses on a higher-level CPU-GPU inference setting. Its question is not only which device has more compute, but whether moving data between CPU memory and GPU memory is worth the communication cost.
+The direct top-4 experiment retained 96.97% geometric-mean oracle-relative performance while reducing tuning wall time from 12.600 seconds to 1.987 seconds, an 84.23% reduction. This result is preliminary and limited to the current GPU, kernel, workloads, candidate space, and cache conditions.
 
-The common theme I want to study is:
-
-```text
-code -> kernels -> memory behavior -> hardware utilization -> latency
-```
-
-For the first step, I am narrowing this down to attention only.
-
-## Current Hardware Constraint
-
-My local machine is a Mac. It does not have an NVIDIA GPU, so it cannot run CUDA FlashAttention or Nsight CUDA profiling locally.
-
-Because of that, this repo separates the work into two stages:
-
-1. Mac/MPS practice benchmark
-2. CUDA FlashAttention benchmark when I have access to an NVIDIA GPU machine
-
-The Mac benchmark is not meant to reproduce the FlashAttention paper directly. It is a way to validate the benchmark pipeline, practice measuring latency, generate CSV results, make plots, and check that the two attention implementations have matching semantics.
-
-The CUDA benchmark is the version that should be used for the actual FlashAttention comparison and deeper profiling.
-
-## Experiment Design
-
-The first experiment varies only sequence length.
-
-Fixed configuration:
-
-- batch size: 1
-- number of heads: 16
-- head dimension: 64
-- dtype: FP16 where supported
-
-Sequence lengths:
-
-- 128
-- 256
-- 512
-- 1024
-- 2048
-- 4096
-
-The benchmark records:
-
-- mean latency after warmup
-- median latency after warmup
-- min and max latency
-- standard deviation
-- recorded allocated memory
-- speedup over the explicit standard attention implementation
-- environment metadata
-
-## Implementations Compared
-
-The `standard` implementation is a straightforward scaled dot-product attention implementation:
-
-```text
-scores = QK^T / sqrt(d)
-probabilities = softmax(scores)
-output = probabilities V
-```
-
-This implementation materializes the full attention score tensor:
-
-```text
-batch x heads x sequence length x sequence length
-```
-
-That tensor grows quadratically with sequence length, so it is useful for observing why memory behavior can matter.
-
-On CUDA, the comparison target is:
-
-```text
-torch.nn.functional.scaled_dot_product_attention
-```
-
-with the FlashAttention backend forced when available.
-
-For the CUDA baseline, the benchmark records three paths:
-
-- `standard`: explicit matmul, softmax, matmul
-- `sdpa_auto`: PyTorch SDPA with automatic backend selection
-- `flash_forced`: PyTorch SDPA with FlashAttention forced where supported
-
-If a backend is unsupported for a configuration, the benchmark records the failure in the CSV instead of silently dropping the run.
-
-On Mac MPS, the comparison target is also PyTorch SDPA, but with the backend available on Apple MPS. I will label this result as `sdpa`, not `flash`, because it is not CUDA FlashAttention.
-
-Both paths use the same `q`, `k`, and `v` tensors and the same non-causal attention semantics.
-
-## Current Local Environment
-
-The local development environment has been created at:
-
-```text
-.venv/bin/python
-```
-
-Current local status:
-
-- Python 3.11
-- PyTorch installed
-- pandas installed
-- matplotlib installed
-- Apple MPS available
-- CUDA not available
-- `nvidia-smi` not available
-
-This means I can develop and run the Mac/MPS practice benchmark locally. I still need an NVIDIA GPU machine for the CUDA FlashAttention benchmark and Nsight profiling.
-
-## How To Run On My Mac
-
-Environment check:
-
-```bash
-.venv/bin/python src/check_environment.py
-```
-
-Mac/MPS practice benchmark:
-
-```bash
-.venv/bin/python src/benchmark_attention.py --device mps --seq-lengths 128 256 512 1024 --warmup 10 --trials 30 --output results/mps_attention_benchmark.csv --metadata-output results/mps_environment_metadata.json
-```
-
-Generate plots:
-
-```bash
-.venv/bin/python src/plot_results.py --input results/mps_attention_benchmark.csv --output-dir plots/mps
-```
-
-These results should be interpreted as a local workflow test, not as evidence about CUDA FlashAttention performance.
-
-## How To Run Later On NVIDIA GPU
-
-On a CUDA-capable machine with CUDA-enabled PyTorch installed:
-
-```bash
-python3 src/check_environment.py
-python3 src/benchmark_attention.py --device cuda
-python3 src/plot_results.py
-```
-
-A smaller smoke test:
-
-```bash
-python3 src/benchmark_attention.py --device cuda --seq-lengths 128 256 --warmup 5 --trials 10
-```
-
-Expected outputs:
-
-```text
-results/attention_benchmark.csv
-results/environment_metadata.json
-plots/latency_vs_sequence_length.png
-plots/peak_memory_vs_sequence_length.png
-plots/speedup_vs_sequence_length.png
-```
-
-## Documentation Map
-
-Setup and runbooks:
-
-- [CUDA_SERVER_RUNBOOK.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/setup/CUDA_SERVER_RUNBOOK.md)
-- [NSIGHT_SETUP_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/setup/NSIGHT_SETUP_NOTES.md)
-
-Current plans and templates:
-
-- [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
-- [ATTENTION_SELECTOR_BASELINE_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/ATTENTION_SELECTOR_BASELINE_PLAN.md)
-- [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FULL_ATTENTION_WORKLOAD_PLAN.md)
-- [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/NEXT_REPORT_TEMPLATE.md)
-- [WEEKLY_TRACKER_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/WEEKLY_TRACKER_TEMPLATE.md)
-
-Reading and progress notes:
-
-- [PAPER_REVIEW_TABLE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reading/PAPER_REVIEW_TABLE.md)
-- [WEEKLY_PROGRESS.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/WEEKLY_PROGRESS.md)
-- [EXPERIMENT_NOTES.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/EXPERIMENT_NOTES.md)
-- [WEEK3_REPRODUCIBILITY.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/notes/WEEK3_REPRODUCIBILITY.md)
-
-Current main report:
-
-- [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
-- [ATTENTION_SELECTOR_BASELINE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md)
-
-Current proposal draft:
-
-- [CURO_PROPOSAL_DRAFT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/proposals/CURO_PROPOSAL_DRAFT.md)
-
-Earlier experiment reports:
-
-- [CUDA_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/CUDA_RESULTS_REPORT.md)
-- [PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/PROFILING_RESULTS_REPORT.md)
-- [BOUNDARY_SWEEP_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/BOUNDARY_SWEEP_RESULTS_REPORT.md)
-- [BOUNDARY_PROFILING_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/BOUNDARY_PROFILING_RESULTS_REPORT.md)
-- [HEAD_DIMENSION_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/HEAD_DIMENSION_RESULTS_REPORT.md)
-- [TRITON_QK_SMOKE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_SMOKE_REPORT.md)
-- [TRITON_QK_TILE_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_TILE_SWEEP_REPORT.md)
-- [TRITON_QK_SEQ4096_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/TRITON_QK_SEQ4096_RESULTS_REPORT.md)
-- [NSIGHT_NCU_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/NSIGHT_NCU_RESULTS_REPORT.md)
-- [NSIGHT_NSYS_RESULTS_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/NSIGHT_NSYS_RESULTS_REPORT.md)
-
-Workload tables:
-
-- [workloads/small_attention_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/small_attention_workloads.csv)
-- [workloads/week3_config_sweep_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/week3_config_sweep_workloads.csv)
-- [workloads/expanded_dense_prefill_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/expanded_dense_prefill_workloads.csv)
-
-Configuration tables:
-
-- [configs/attention_config_space.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/configs/attention_config_space.csv)
-
-## Methodological Notes
-
-For CUDA, timing uses CUDA events and explicit synchronization. This is more appropriate for GPU kernels than CPU wall-clock timing because CUDA kernel launches are asynchronous.
-
-For MPS, timing uses wall-clock time with explicit MPS synchronization before and after each trial. This is less detailed than CUDA events, but it is sufficient for validating the workflow on Mac.
-
-The benchmark includes a correctness check before timing. The purpose is to avoid comparing two implementations that silently compute different attention outputs.
-
-I am currently using latency and allocated memory as the first measurements. For the CUDA stage, I plan to add profiler evidence for representative sequence lengths, likely 512 and 4096.
-
-## What I Can Discuss After Initial Results
-
-After collecting the first benchmark results, I want to answer:
-
-- How does latency change as sequence length increases?
-- Does the gap between standard attention and SDPA/FlashAttention grow with sequence length?
-- Does memory usage show the expected quadratic pressure in the standard implementation?
-- Which observations are directly supported by measurements?
-- Which explanations are still hypotheses?
-
-For the CUDA stage, the next questions are:
-
-- How much time is spent in attention kernels?
-- How much DRAM traffic is observed?
-- Is performance more limited by memory bandwidth or compute throughput?
-- Are there crossover points where the optimized backend gives less benefit?
-
-## Repository Layout
+## Repository structure
 
 ```text
 flashattention-profiling/
-├── README.md
-├── requirements.txt
-├── docs/
-│   ├── setup/
-│   ├── plans/
-│   ├── reports/
-│   ├── reading/
-│   ├── templates/
-│   └── notes/
-├── src/
-│   ├── check_environment.py
-│   ├── attention.py
-│   ├── benchmark_attention.py
-│   └── plot_results.py
-├── results/
-├── plots/
-└── profiling/
-    └── README.md
+├── configs/       # fixed Triton candidate space
+├── docs/          # notes, plans, proposals, reports, and runbooks
+├── profiling/     # profiler artifacts and notes
+├── results/       # preserved raw and derived experiment data
+├── src/           # benchmarks and CPU-only analysis scripts
+├── tests/         # reproducibility and analysis tests
+└── workloads/     # Week 3 and expanded workload definitions
 ```
 
-## Current Status
+## Local setup and verification
 
-The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes CUDA SDPA/FlashAttention baselines, Nsight setup notes, Triton QK experiments, a forward-only Triton fused-attention kernel, an expanded fused-attention configuration sweep, and offline held-out selector baselines.
+The local Mac is used for development and CPU-only analysis; it cannot produce CUDA evidence.
 
-See [ATTENTION_SELECTOR_BASELINE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md).
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python src/validate_expanded_sweep_inputs.py
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Expected input validation:
+
+```text
+Validated 16 supported workloads, 2 unsupported references, and 48 candidate configurations.
+```
+
+Reproduce the CPU-only selector analyses from the preserved CUDA measurements:
+
+```bash
+.venv/bin/python src/analyze_attention_sweep_repetitions.py
+.venv/bin/python src/evaluate_attention_config_selectors.py \
+  --sweep \
+    results/expanded_attention_sweep.csv \
+    results/expanded_attention_sweep_seed1.csv \
+    results/expanded_attention_sweep_seed2.csv \
+  --sweep-summary results/expanded_attention_sweep_summary.csv \
+  --configs configs/attention_config_space.csv \
+  --tutorial-config bm64_bn64_w4_s3 \
+  --budgets 1 2 4 8 \
+  --random-seeds 100 \
+  --seed 0 \
+  --tree-max-depth 2 \
+  --tree-min-leaf 2 \
+  --trials-output results/attention_selector_repeated_trials.csv \
+  --summary-output results/attention_selector_repeated_summary.csv \
+  --metadata-output results/attention_selector_repeated_metadata.json
+.venv/bin/python src/evaluate_attention_selector_split_sensitivity.py
+.venv/bin/python src/analyze_online_selector_timing.py
+```
+
+## CUDA execution
+
+CUDA benchmarks require an NVIDIA GPU, CUDA-enabled PyTorch, and Triton. The tested environment is an NVIDIA GeForce RTX 3090. Use the [CUDA server runbook](docs/setup/CUDA_SERVER_RUNBOOK.md) for the exact environment, sweep, repetition, transfer, and direct online timing workflow.
+
+The main experiment definitions are:
+
+- [expanded workload/config sweep](docs/plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
+- [selector baselines and metrics](docs/plans/ATTENTION_SELECTOR_BASELINE_PLAN.md)
+- [Week 4 completion audit](docs/plans/WEEK4_COMPLETION_AUDIT.md)
+
+## Main outputs
+
+- [selector and repeatability report](docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md)
+- [weekly research tracker](docs/notes/WEEKLY_PROGRESS.md)
+- [paper review table](docs/reading/PAPER_REVIEW_TABLE.md)
+- [CURO proposal first draft](docs/proposals/CURO_PROPOSAL_FIRST_DRAFT.md)
+- [technical proposal working draft](docs/proposals/CURO_PROPOSAL_DRAFT.md)
+- [sendable proposal PDF](output/pdf/CURO_Proposal_First_Draft.pdf)
+- [sendable Week 4 update PDF](output/pdf/Week4_Research_Update.pdf)
+
+Communication drafts are preserved separately for [Qingchen](docs/emails/EMAIL_TO_QINGCHEN_WEEK4.md) and [Dr. Wenwen Wang](docs/emails/EMAIL_TO_WENWEN_CURO.md).
+
+The raw exhaustive runs, repeated runs, online timing outputs, and derived comparison tables are preserved under `results/` with metadata and input hashes.
+
+## Interpretation limits
+
+- The oracle is local to the declared 48-configuration space.
+- The kernel is forward-only dense self-attention and is not a production FlashAttention implementation.
+- Resource-invalid candidates count as tuning attempts but are excluded from valid latency comparisons.
+- Later repetitions and direct online timing retain Triton's disk cache and do not measure controlled cold compilation.
+- PyTorch SDPA is faster than this Triton kernel on most current workloads; the research question concerns selection within the Triton configuration space.
+- Exact top-1 labels are noisy, so oracle-relative top-k performance is the primary outcome.
+
+Earlier SDPA, boundary, head-dimension, Triton QK, and Nsight experiments remain documented under `docs/reports/`.

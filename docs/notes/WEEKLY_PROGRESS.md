@@ -93,21 +93,26 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Defined 16 supported dense-prefill workloads with development/held-out splits, FP16/BF16, causal/non-causal modes, and varied sequence length, head count, and head dimension.
 - Defined 48 candidate Triton configurations and added separate compile/cache-preparation and steady-state benchmark timing.
 - Replaced the absolute-only correctness threshold with combined absolute and relative tolerances.
+- Ran the 48-configuration sweep on an RTX 3090 and preserved the detailed results, summary, and environment metadata.
+- Added offline held-out evaluation for the tutorial-derived project default, best fixed development config, nearest-workload reuse, random search at budgets 1/2/4/8, a shallow decision-tree ranker, and the exhaustive local oracle.
 
 ### Main findings
 
-- Offline validation confirms 16 supported workloads, 2 unsupported GQA references, and 48 unique candidate configurations.
-- CUDA measurements are still required to determine how many candidates are valid and whether exhaustive tuning cost is meaningful.
+- All 696 successfully executed Triton measurements passed correctness; 72 attempts failed because eight `BLOCK_N=128, num_stages=3` configurations exceeded shared-memory capacity on nine `head_dim=128` workloads.
+- The 16 supported workloads selected nine marked oracle configurations. The full sweep took 347.6 seconds across the workload set, although compile/cache timing is order- and cache-dependent.
+- The best fixed development configuration reached 84.1% geometric-mean oracle-relative performance on held-out workloads. The decision-tree ranker reached 92.6% with top-2, 96.5% with top-4, and 99.2% with top-8 while considering at most 16.7% of the 48 candidates.
+- The Triton local oracle beat PyTorch SDPA on only 3 of 16 workloads, so the result supports configuration selection but not a claim that this kernel is generally faster than PyTorch.
 
 ### Unsuccessful attempts / limitations
 
-- The expanded sweep cannot be executed on the local Mac because CUDA and Triton are unavailable.
-- No selector result exists yet.
+- Two workloads have exact median-latency ties, and several top configurations differ by only 1-3%; repeated CUDA runs are needed to test oracle-label stability.
+- The dataset has only 10 development and 6 held-out workloads on one RTX 3090. The shallow tree result is preliminary and may be sensitive to the split.
+- Compile preparation is cache-aware rather than a controlled cold-cache measurement, and failed compile attempts have no per-config timing.
 
 ### Interpretation
 
-- In progress.
+- A small ranked candidate set can approach the measured local oracle on this held-out split, and it clearly outperforms fixed, nearest-workload, and random baselines at the same small budgets. This supports continuing the selector direction, but not yet a generalization claim.
 
 ### Next step
 
-- Run the expanded smoke test on the RTX 3090, remove or replace invalid candidates if fewer than 32 remain, then collect the stable local-oracle dataset.
+- Repeat the CUDA latency measurements to quantify oracle-ranking stability, then use the verified evidence in the first CURO proposal draft and decide whether a separate learned ranker is justified.

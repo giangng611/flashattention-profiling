@@ -16,6 +16,9 @@ results/**/*.json
 !results/expanded_attention_sweep.csv
 !results/expanded_attention_sweep_summary.csv
 !results/expanded_attention_sweep_metadata.json
+!results/attention_selector_trials.csv
+!results/attention_selector_summary.csv
+!results/attention_selector_metadata.json
 plots/**/*.png
 profiling/**/*.qdrep
 profiling/**/*.nsys-rep

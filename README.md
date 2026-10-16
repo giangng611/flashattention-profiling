@@ -179,6 +179,7 @@ Setup and runbooks:
 Current plans and templates:
 
 - [FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FUSED_ATTENTION_CONFIG_SWEEP_PLAN.md)
+- [ATTENTION_SELECTOR_BASELINE_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/ATTENTION_SELECTOR_BASELINE_PLAN.md)
 - [FULL_ATTENTION_WORKLOAD_PLAN.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/plans/FULL_ATTENTION_WORKLOAD_PLAN.md)
 - [NEXT_REPORT_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/NEXT_REPORT_TEMPLATE.md)
 - [WEEKLY_TRACKER_TEMPLATE.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/templates/WEEKLY_TRACKER_TEMPLATE.md)
@@ -193,6 +194,7 @@ Reading and progress notes:
 Current main report:
 
 - [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md)
+- [ATTENTION_SELECTOR_BASELINE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md)
 
 Earlier experiment reports:
 
@@ -270,6 +272,6 @@ flashattention-profiling/
 
 ## Current Status
 
-The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes CUDA SDPA/FlashAttention baselines, Nsight setup notes, Triton QK experiments, a forward-only Triton fused-attention kernel, and an expanded fused-attention configuration sweep.
+The repository is ready for local Mac/MPS testing and CUDA testing. The current checkpoint includes CUDA SDPA/FlashAttention baselines, Nsight setup notes, Triton QK experiments, a forward-only Triton fused-attention kernel, an expanded fused-attention configuration sweep, and offline held-out selector baselines.
 
-See [FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/FUSED_ATTENTION_CONFIG_SWEEP_REPORT.md).
+See [ATTENTION_SELECTOR_BASELINE_REPORT.md](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/docs/reports/ATTENTION_SELECTOR_BASELINE_REPORT.md).

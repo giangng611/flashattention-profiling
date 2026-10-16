@@ -90,10 +90,9 @@ The main experiment definitions are:
 - [paper review table](docs/reading/PAPER_REVIEW_TABLE.md)
 - [CURO proposal first draft](docs/proposals/CURO_PROPOSAL_FIRST_DRAFT.md)
 - [technical proposal working draft](docs/proposals/CURO_PROPOSAL_DRAFT.md)
+- [sendable Week 4 Markdown update](docs/updates/WEEK4_RESEARCH_UPDATE.md)
 - [sendable proposal PDF](output/pdf/CURO_Proposal_First_Draft.pdf)
-- [sendable Week 4 update PDF](output/pdf/Week4_Research_Update.pdf)
-
-Communication drafts are preserved separately for [Qingchen](docs/emails/EMAIL_TO_QINGCHEN_WEEK4.md) and [Dr. Wenwen Wang](docs/emails/EMAIL_TO_WENWEN_CURO.md).
+- [optional Week 4 update PDF](output/pdf/Week4_Research_Update.pdf)
 
 The raw exhaustive runs, repeated runs, online timing outputs, and derived comparison tables are preserved under `results/` with metadata and input hashes.
 

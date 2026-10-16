@@ -1,0 +1,19 @@
+name,phase,batch,query_length,kv_length,query_heads,kv_heads,head_dim,dtype,causal,source,expected_status,notes,split
+dense-prefill-s256-h8-d64-fp16-causal,prefill,1,256,256,8,8,64,float16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s512-h8-d64-fp16-causal,prefill,1,512,512,8,8,64,float16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s1024-h8-d64-fp16-causal,prefill,1,1024,1024,8,8,64,float16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s2048-h8-d64-fp16-causal,prefill,1,2048,2048,8,8,64,float16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s512-h8-d128-fp16-causal,prefill,1,512,512,8,8,128,float16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s1024-h12-d128-fp16-causal,prefill,1,1024,1024,12,12,128,float16,true,synthetic,supported,expanded sweep,development
+dense-qwen-shaped-proxy-s2048-fp16-causal,prefill,1,2048,2048,12,12,128,float16,true,synthetic_dense_proxy,supported,expanded sweep proxy,development
+dense-prefill-s512-h16-d128-bf16-causal,prefill,1,512,512,16,16,128,bfloat16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s1024-h16-d64-bf16-causal,prefill,1,1024,1024,16,16,64,bfloat16,true,synthetic,supported,expanded sweep,development
+dense-prefill-s512-h12-d128-fp16-noncausal,prefill,1,512,512,12,12,128,float16,false,synthetic,supported,expanded sweep,development
+gpt2-shaped-prefill-s768-h12-d64-fp16-causal,prefill,1,768,768,12,12,64,float16,true,model_derived_dense,supported,GPT-2 head topology with held-out sequence length,held_out
+dense-prefill-s1536-h12-d128-fp16-causal,prefill,1,1536,1536,12,12,128,float16,true,synthetic,supported,expanded sweep,held_out
+dense-prefill-s1024-h16-d128-fp16-noncausal,prefill,1,1024,1024,16,16,128,float16,false,synthetic,supported,expanded sweep,held_out
+dense-prefill-s2048-h8-d128-bf16-causal,prefill,1,2048,2048,8,8,128,bfloat16,true,synthetic,supported,expanded sweep,held_out
+bert-large-shaped-s512-h16-d64-bf16-noncausal,prefill,1,512,512,16,16,64,bfloat16,false,model_derived_dense,supported,BERT-large head topology and maximum sequence length,held_out
+dense-qwen-shaped-proxy-s2048-bf16-causal,prefill,1,2048,2048,12,12,128,bfloat16,true,synthetic_dense_proxy,supported,expanded sweep proxy,held_out
+qwen2.5-1.5b-prefill-512-gqa-reference,prefill,1,512,512,12,2,128,bfloat16,true,model_derived,unsupported,GQA reference excluded from selector split,reference_only
+qwen2.5-1.5b-prefill-2048-gqa-reference,prefill,1,2048,2048,12,2,128,bfloat16,true,model_derived,unsupported,GQA reference excluded from selector split,reference_only

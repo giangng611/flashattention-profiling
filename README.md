@@ -211,6 +211,11 @@ Workload tables:
 
 - [workloads/small_attention_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/small_attention_workloads.csv)
 - [workloads/week3_config_sweep_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/week3_config_sweep_workloads.csv)
+- [workloads/expanded_dense_prefill_workloads.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/workloads/expanded_dense_prefill_workloads.csv)
+
+Configuration tables:
+
+- [configs/attention_config_space.csv](/Users/giangnguyendohoang/PycharmProjects/flashattention-profiling/configs/attention_config_space.csv)
 
 ## Methodological Notes
 

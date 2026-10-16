@@ -14,6 +14,7 @@ import json
 import math
 import statistics
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -47,6 +48,7 @@ class Workload:
     source: str = "unspecified"
     expected_status: str = "auto"
     notes: str = ""
+    split: str = "unspecified"
 
 
 DEFAULT_WORKLOADS = [
@@ -75,6 +77,7 @@ def fused_attention_fwd_kernel(
     block_n: tl.constexpr,
     block_d: tl.constexpr,
     causal: tl.constexpr,
+    input_is_bf16: tl.constexpr,
 ) -> None:
     start_m = tl.program_id(0)
     off_bh = tl.program_id(1)
@@ -118,7 +121,11 @@ def fused_attention_fwd_kernel(
             mask=(curr_n[:, None] < kv_len) & (offs_d[None, :] < head_dim),
             other=0.0,
         )
-        acc = acc * alpha[:, None] + tl.dot(p.to(tl.float16), v)
+        if input_is_bf16:
+            p = p.to(tl.bfloat16)
+        else:
+            p = p.to(tl.float16)
+        acc = acc * alpha[:, None] + tl.dot(p, v)
         l_i = l_i * alpha + l_ij
         m_i = m_ij
 
@@ -147,6 +154,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--skip-correctness", action="store_true")
+    parser.add_argument("--atol", type=float, default=8e-2)
+    parser.add_argument("--rtol", type=float, default=2e-2)
     return parser.parse_args()
 
 
@@ -183,6 +192,7 @@ def load_workloads(path: Path | None) -> list[Workload]:
                 source=row.get("source", "unspecified") or "unspecified",
                 expected_status=row.get("expected_status", "auto") or "auto",
                 notes=row.get("notes", "") or "",
+                split=row.get("split", "unspecified") or "unspecified",
             )
             for row in reader
         ]
@@ -226,10 +236,49 @@ def triton_attention(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, workload
         args.block_n,
         next_power_of_2(workload.head_dim),
         workload.causal,
+        workload.dtype == "bfloat16",
         num_warps=args.num_warps,
         num_stages=args.num_stages,
     )
     return output
+
+
+def compile_triton_attention(
+    q: torch.Tensor,
+    k: torch.Tensor,
+    v: torch.Tensor,
+    workload: Workload,
+    args: argparse.Namespace,
+) -> float:
+    """Compile or load one specialization without launching it.
+
+    Triton's warmup API compiles the specialization but does not launch the
+    kernel. The returned wall time can include an in-memory or disk-cache lookup,
+    so metadata labels it as compile/cache preparation rather than guaranteed
+    cold compilation time.
+    """
+    output = torch.empty_like(q)
+    grid = (triton.cdiv(workload.query_length, args.block_m), workload.batch * workload.query_heads)
+    start = time.perf_counter()
+    fused_attention_fwd_kernel.warmup(
+        q,
+        k,
+        v,
+        output,
+        workload.query_length,
+        workload.kv_length,
+        workload.head_dim,
+        workload.head_dim**-0.5,
+        args.block_m,
+        args.block_n,
+        next_power_of_2(workload.head_dim),
+        workload.causal,
+        workload.dtype == "bfloat16",
+        num_warps=args.num_warps,
+        num_stages=args.num_stages,
+        grid=grid,
+    )
+    return (time.perf_counter() - start) * 1000.0
 
 
 def torch_sdpa(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, workload: Workload) -> torch.Tensor:
@@ -298,14 +347,30 @@ def add_metrics(row: dict[str, object], workload: Workload) -> dict[str, object]
     return row
 
 
-def correctness(reference: torch.Tensor, compared: torch.Tensor) -> dict[str, object]:
+def correctness(
+    reference: torch.Tensor,
+    compared: torch.Tensor,
+    atol: float,
+    rtol: float,
+) -> dict[str, object]:
     diff = (reference.float() - compared.float()).abs()
+    relative_floor = max(atol, torch.finfo(torch.float32).tiny)
+    relative_diff = diff / reference.float().abs().clamp_min(relative_floor)
     max_abs = float(diff.max().item())
     mean_abs = float(diff.mean().item())
+    max_rel = float(relative_diff.max().item())
+    threshold = atol + rtol * reference.float().abs()
     return {
         "correctness_max_abs_diff": max_abs,
         "correctness_mean_abs_diff": mean_abs,
-        "correctness_passed": math.isfinite(max_abs) and max_abs < 8e-2,
+        "correctness_max_rel_diff": max_rel,
+        "correctness_atol": atol,
+        "correctness_rtol": rtol,
+        "correctness_passed": (
+            math.isfinite(max_abs)
+            and math.isfinite(max_rel)
+            and bool(torch.all(diff <= threshold).item())
+        ),
     }
 
 
@@ -327,6 +392,7 @@ def base_row(workload: Workload, method: str, args: argparse.Namespace) -> dict[
         "source": workload.source,
         "expected_status": workload.expected_status,
         "workload_notes": workload.notes,
+        "split": workload.split,
         "block_m": args.block_m if method == "triton_fused_attention" else None,
         "block_n": args.block_n if method == "triton_fused_attention" else None,
         "num_warps": args.num_warps if method == "triton_fused_attention" else None,
@@ -350,7 +416,12 @@ def skipped_rows(workload: Workload, reason: str, args: argparse.Namespace) -> l
                 "memory_allocated_bytes": None,
                 "correctness_max_abs_diff": None,
                 "correctness_mean_abs_diff": None,
+                "correctness_max_rel_diff": None,
+                "correctness_atol": args.atol,
+                "correctness_rtol": args.rtol,
                 "correctness_passed": None,
+                "compile_or_cache_prepare_ms": None,
+                "benchmark_wall_time_ms": None,
             }
         )
         rows.append(add_metrics(row, workload))
@@ -366,11 +437,15 @@ def benchmark_workload(workload: Workload, args: argparse.Namespace) -> list[dic
     reference = torch_sdpa(q, k, v, workload)
     synchronize()
 
+    compile_or_cache_prepare_ms = compile_triton_attention(q, k, v, workload, args)
     triton_out = triton_attention(q, k, v, workload, args)
     synchronize()
-    correctness_info = correctness(reference, triton_out) if not args.skip_correctness else {
+    correctness_info = correctness(reference, triton_out, args.atol, args.rtol) if not args.skip_correctness else {
         "correctness_max_abs_diff": None,
         "correctness_mean_abs_diff": None,
+        "correctness_max_rel_diff": None,
+        "correctness_atol": args.atol,
+        "correctness_rtol": args.rtol,
         "correctness_passed": None,
     }
 
@@ -383,13 +458,21 @@ def benchmark_workload(workload: Workload, args: argparse.Namespace) -> list[dic
         torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats()
         row = base_row(workload, method_name, args)
+        benchmark_start = time.perf_counter()
         row.update(time_cuda(fn, args.warmup, args.trials))
+        row["benchmark_wall_time_ms"] = (time.perf_counter() - benchmark_start) * 1000.0
+        row["compile_or_cache_prepare_ms"] = (
+            compile_or_cache_prepare_ms if method_name == "triton_fused_attention" else None
+        )
         row["memory_allocated_bytes"] = int(torch.cuda.max_memory_allocated())
         if method_name == "torch_sdpa":
             row.update(
                 {
                     "correctness_max_abs_diff": 0.0,
                     "correctness_mean_abs_diff": 0.0,
+                    "correctness_max_rel_diff": 0.0,
+                    "correctness_atol": args.atol,
+                    "correctness_rtol": args.rtol,
                     "correctness_passed": True,
                 }
             )
@@ -418,13 +501,23 @@ def metadata(args: argparse.Namespace, workloads: list[Workload]) -> dict[str, o
         "num_warps": args.num_warps,
         "num_stages": args.num_stages,
         "seed": args.seed,
+        "correctness_atol": args.atol,
+        "correctness_rtol": args.rtol,
         "workload_count": len(workloads),
+        "compile_timing_note": (
+            "compile_or_cache_prepare_ms times Triton JITFunction.warmup, which does not launch the kernel. "
+            "It can include an in-memory or disk-cache lookup and is not guaranteed cold compilation time."
+        ),
         "note": "Forward-only Triton fused-attention benchmark. Initial kernel supports self-attention with q_heads == kv_heads.",
     }
 
 
 def main() -> None:
     args = parse_args()
+    if args.atol < 0 or args.rtol < 0:
+        raise ValueError("Correctness tolerances must be non-negative")
+    if args.warmup < 0 or args.trials <= 0:
+        raise ValueError("warmup must be non-negative and trials must be positive")
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA is required for this benchmark.")
 

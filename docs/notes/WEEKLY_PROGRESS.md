@@ -90,14 +90,19 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Corrected the Week 3 workload taxonomy and added explicit model-derived versus synthetic and supported versus unsupported metadata.
 - Preserved a corrected-label snapshot of the Week 3 workload set and documented the missing raw artifacts without reconstructing them.
 - Expanded the paper table using the comparison fields requested for configuration-selection work.
+- Defined 16 supported dense-prefill workloads with development/held-out splits, FP16/BF16, causal/non-causal modes, and varied sequence length, head count, and head dimension.
+- Defined 48 candidate Triton configurations and added separate compile/cache-preparation and steady-state benchmark timing.
+- Replaced the absolute-only correctness threshold with combined absolute and relative tolerances.
 
 ### Main findings
 
-- In progress.
+- Offline validation confirms 16 supported workloads, 2 unsupported GQA references, and 48 unique candidate configurations.
+- CUDA measurements are still required to determine how many candidates are valid and whether exhaustive tuning cost is meaningful.
 
 ### Unsuccessful attempts / limitations
 
-- No expanded sweep or selector result exists yet.
+- The expanded sweep cannot be executed on the local Mac because CUDA and Triton are unavailable.
+- No selector result exists yet.
 
 ### Interpretation
 
@@ -105,4 +110,4 @@ This file keeps a short record of what I did, what I observed, what did not work
 
 ### Next step
 
-- Add absolute and relative correctness tolerances, BF16 cases, and separate compilation/benchmark timing before the expanded sweep.
+- Run the expanded smoke test on the RTX 3090, remove or replace invalid candidates if fewer than 32 remain, then collect the stable local-oracle dataset.

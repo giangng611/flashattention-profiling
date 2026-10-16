@@ -88,13 +88,7 @@ The purpose of this first implementation is to move one step beyond the QK^T mic
 O = softmax(QK^T / sqrt(d)) V
 ```
 
-I should treat the first results as an implementation smoke test, then use them to decide whether the next useful step is:
-
-- add GQA support
-- add decode support
-- add tile/autotune experiments
-- compare with the official Triton tutorial kernel
-- collect application-derived shapes from small LLM inference workloads
+The current core scope is dense prefill configuration selection. GQA and decode remain later extensions. The immediate task is to expand the dense workload/configuration space, measure tuning cost, and evaluate held-out selection before broadening kernel functionality.
 
 ## Small Workload Table
 

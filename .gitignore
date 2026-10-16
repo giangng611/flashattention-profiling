@@ -13,6 +13,9 @@ results/**/*.json
 !results/triton_fused_attention_config_sweep.csv
 !results/triton_fused_attention_config_sweep_summary.csv
 !results/triton_fused_attention_config_sweep_metadata.json
+!results/expanded_attention_sweep.csv
+!results/expanded_attention_sweep_summary.csv
+!results/expanded_attention_sweep_metadata.json
 plots/**/*.png
 profiling/**/*.qdrep
 profiling/**/*.nsys-rep

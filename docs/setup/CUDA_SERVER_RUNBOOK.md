@@ -167,3 +167,47 @@ If the server login works but CUDA is unavailable:
 1. Save the output of `nvidia-smi`.
 2. Save the output of `src/check_environment.py`.
 3. Save the exact failure message for the next update.
+
+## Direct Online Selector Timing
+
+After the repeated exhaustive sweeps and offline split-sensitivity analysis are committed, measure the direct warm-cache cost of the robust tree top-4 policy and an exhaustive 48-config control. Run them as separate Python processes so their in-memory Triton states do not overlap.
+
+Tree top-4:
+
+```bash
+.venv/bin/python src/benchmark_attention_selector_online.py \
+  --mode tree \
+  --budget 4 \
+  --warmup 20 \
+  --trials 100 \
+  --seed 3 \
+  --output results/online_selector_top4_measurements.csv \
+  --summary-output results/online_selector_top4_summary.csv \
+  --metadata-output results/online_selector_top4_metadata.json \
+  2>&1 | tee results/online_selector_top4.log
+```
+
+Exhaustive control:
+
+```bash
+.venv/bin/python src/benchmark_attention_selector_online.py \
+  --mode exhaustive \
+  --budget 4 \
+  --warmup 20 \
+  --trials 100 \
+  --seed 3 \
+  --output results/online_selector_exhaustive_measurements.csv \
+  --summary-output results/online_selector_exhaustive_summary.csv \
+  --metadata-output results/online_selector_exhaustive_metadata.json \
+  2>&1 | tee results/online_selector_exhaustive.log
+```
+
+Expected output for each command:
+
+- six held-out workloads;
+- four attempted configurations per workload for tree top-4;
+- 48 attempted configurations per workload for exhaustive mode;
+- zero correctness failures;
+- three data files plus one log per mode.
+
+These commands retain the existing Triton disk cache. They measure direct warm-cache online tuning cost, not cold compilation cost.

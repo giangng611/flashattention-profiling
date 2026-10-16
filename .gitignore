@@ -31,6 +31,12 @@ results/**/*.json
 !results/attention_selector_split_sensitivity_trials.csv
 !results/attention_selector_split_sensitivity_summary.csv
 !results/attention_selector_split_sensitivity_metadata.json
+!results/online_selector_top4_measurements.csv
+!results/online_selector_top4_summary.csv
+!results/online_selector_top4_metadata.json
+!results/online_selector_exhaustive_measurements.csv
+!results/online_selector_exhaustive_summary.csv
+!results/online_selector_exhaustive_metadata.json
 !results/attention_sweep_repeat_config_stability.csv
 !results/attention_sweep_repeat_workload_stability.csv
 !results/attention_sweep_repeat_metadata.json

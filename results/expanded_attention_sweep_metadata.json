@@ -1,0 +1,319 @@
+{
+  "python_version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "torch_version": "2.14.0+cu130",
+  "torch_cuda_version": "13.0",
+  "triton_version": "3.8.0",
+  "device_name": "NVIDIA GeForce RTX 3090",
+  "device_index": 0,
+  "compute_capability": "8.6",
+  "total_memory_bytes": 25288507392,
+  "warmup": 20,
+  "trials": 100,
+  "block_m": 16,
+  "block_n": 32,
+  "num_warps": 4,
+  "num_stages": 2,
+  "seed": 0,
+  "correctness_atol": 0.08,
+  "correctness_rtol": 0.02,
+  "workload_count": 18,
+  "compile_timing_note": "compile_or_cache_prepare_ms times Triton JITFunction.warmup, which does not launch the kernel. It can include an in-memory or disk-cache lookup and is not guaranteed cold compilation time.",
+  "note": "Triton fused-attention config sweep. The fastest correct Triton config per workload is marked as the oracle within this small search space.",
+  "block_ms": null,
+  "block_ns": null,
+  "num_warps_values": null,
+  "num_stages_values": null,
+  "config_file": "configs/attention_config_space.csv",
+  "config_candidates": [
+    {
+      "block_m": 16,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 16,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 16,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 16,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 16,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 16,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 16,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 32,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 32,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 64,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 64,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 32,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 32,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 64,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 64,
+      "num_warps": 8,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 128,
+      "num_warps": 4,
+      "num_stages": 3
+    },
+    {
+      "block_m": 128,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 2
+    },
+    {
+      "block_m": 128,
+      "block_n": 128,
+      "num_warps": 8,
+      "num_stages": 3
+    }
+  ],
+  "config_count": 48,
+  "timing_note": "compile_or_cache_prepare_ms times Triton JITFunction.warmup without a kernel launch. It may include cache lookup/load and is not guaranteed cold compilation time. benchmark_wall_time_ms covers steady-state warmup and timed trials."
+}

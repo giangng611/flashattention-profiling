@@ -44,6 +44,24 @@ Random budget-1 and budget-2 have zero aggregate geometric mean because some tri
 
 The repeated result is more conservative than the first-run result, but the main finding survives. The decision-tree top-2 policy reaches 94.0% of the aggregate local oracle with 2 of 48 configurations. At the same or nearby budgets, it outperforms best fixed and random search. Nearest-workload reuse is also a strong one-config baseline and must remain in future comparisons.
 
+## Split sensitivity
+
+The original 10/6 split was compared with 99 deterministic, unique random 10/6 splits. Every split preserves basic categorical coverage on both sides: FP16/BF16, head dimensions 64/128, causal/non-causal workloads, and at least two query-head counts. These constraints avoid evaluating a selector when a major feature value is entirely absent from training, but they also mean the result is not an average over every possible 10/6 partition.
+
+| Method | Configs measured | Mean split performance | P10 split performance | Worst split | Splits at least 90% | Splits at least 95% |
+|---|---:|---:|---:|---:|---:|---:|
+| Tutorial-derived project default | 1 | 85.5% | 83.3% | 80.8% | 0% | 0% |
+| Best fixed development config | 1 | 90.9% | 88.3% | 83.3% | 70% | 1% |
+| Nearest-workload reuse | 1 | 91.2% | 88.5% | 84.6% | 70% | 1% |
+| Decision-tree ranker, top-1 | 1 | 89.7% | 87.5% | 0% | 69% | 8% |
+| Decision-tree ranker, top-2 | 2 | 93.7% | 90.6% | 87.4% | 92% | 33% |
+| Decision-tree ranker, top-4 | 4 | 96.3% | 94.0% | 90.6% | 100% | 82% |
+| Decision-tree ranker, top-8 | 8 | 98.2% | 96.5% | 95.8% | 100% | 100% |
+
+Top-1 fails on two splits because the single tree-selected candidate is invalid for some `head_dim=128` held-out workloads. Top-k selection avoids this failure mode. Top-2 supports a cautious 90% claim for most, but not all, balanced splits. Top-4 reaches at least 90% on every tested split, while top-8 reaches at least 95% on every tested split.
+
+Random search is not repeated in this analysis because it does not learn from the development partition. Its earlier 100-seed held-out result remains the direct random baseline.
+
 ## Kernel comparison
 
 The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported workloads in the original sweep. The selector experiment therefore answers a within-Triton configuration-selection question. It does not show that the current Triton kernel is generally faster than PyTorch.
@@ -53,9 +71,10 @@ The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported
 - The three repetitions share one GPU, software environment, workload split, and configuration space.
 - Seeds 1 and 2 reuse Triton disk-cache artifacts and cannot estimate cold compilation cost.
 - The 10/6 split is small. The shallow tree may be sensitive to this particular split.
+- The split-sensitivity set is balanced by categorical coverage and therefore does not represent all possible partitions.
 - The aggregate geometric mean reduces single-run noise but does not resolve the large outlier noted above.
 - Estimated tuning time scales the original exhaustive wall time by candidate fraction. It is not a direct online-selector timing.
 
 ## Interpretation
 
-The evidence supports continuing the selector direction and writing the first CURO proposal draft. The defensible claim is that a lightweight top-k ranker can reduce empirical search while retaining high oracle-relative performance on this held-out split. The current evidence does not support a universal performance guarantee, stable exact-oracle prediction, cross-GPU generalization, or Triton superiority over PyTorch SDPA.
+The evidence supports continuing the selector direction and writing the first CURO proposal draft. The defensible claim is that a lightweight top-k ranker can reduce empirical search while retaining high oracle-relative performance across the tested balanced splits. Top-4 is the smallest tested budget that stays above 90% on every split; top-8 is the smallest that stays above 95% on every split. The current evidence does not support a universal performance guarantee, stable exact-oracle prediction, cross-GPU generalization, or Triton superiority over PyTorch SDPA.

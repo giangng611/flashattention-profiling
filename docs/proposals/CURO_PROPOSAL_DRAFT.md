@@ -22,6 +22,8 @@ Three complete RTX 3090 sweeps produced 696 valid Triton measurements and 72 con
 
 Using the geometric mean of three per-run median latencies, a nearest-workload baseline reached 91.2% of the held-out local oracle with one candidate. A shallow decision-tree ranker reached 94.0% with two candidates, 96.0% with four, and 98.0% with eight. The two-candidate result measures 4.2% of the 48-config space and satisfies the initial 90% performance / 25% search-budget target on the current split.
 
+To test split sensitivity, I evaluated the original partition and 99 deterministic balanced random 10/6 partitions. The two-candidate tree reached at least 90% of oracle on 92% of splits. Four candidates reached at least 90% on every split, and eight candidates reached at least 95% on every split. This strengthens the top-k direction but also shows that the original top-2 result is not a universal guarantee.
+
 These measurements are preliminary. They establish feasibility on one GPU and one workload split, not a general performance guarantee.
 
 ## Proposed approach
@@ -68,11 +70,10 @@ The initial success target is at least 90-95% of local-oracle performance while 
 
 ## Next experiments
 
-1. Evaluate split sensitivity with multiple predefined development/held-out partitions or leave-group-out tests.
-2. Measure the selector's direct online wall time instead of relying only on a scaled exhaustive-sweep estimate.
-3. Repeat representative unstable workloads and investigate whether longer timing windows improve ranking stability.
-4. Test whether the same selection policy transfers to another NVIDIA GPU if access is available.
-5. Add GQA only after the dense-prefill prototype and claims are complete.
+1. Measure the selector's direct online wall time instead of relying only on a scaled exhaustive-sweep estimate.
+2. Repeat representative unstable workloads and investigate whether longer timing windows improve ranking stability.
+3. Test whether the same selection policy transfers to another NVIDIA GPU if access is available.
+4. Add GQA only after the dense-prefill prototype and claims are complete.
 
 ## Expected outcome
 

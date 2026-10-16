@@ -1,0 +1,2543 @@
+{
+  "python_version": "3.11.15 (main, Mar  3 2026, 00:52:57) [Clang 17.0.0 (clang-1700.6.3.2)]",
+  "input_sweeps": [
+    {
+      "path": "results/expanded_attention_sweep.csv",
+      "sha256": "ebedc543dd60f83018dacddcb3a2c60250c30a38cbb221a138209967554229a5"
+    },
+    {
+      "path": "results/expanded_attention_sweep_seed1.csv",
+      "sha256": "5cdabaedb4b7ae5749f86562bce3e7f80d010869f8ba8f2ffb7ab456625d5600"
+    },
+    {
+      "path": "results/expanded_attention_sweep_seed2.csv",
+      "sha256": "22f12e578f957980ce8c8f9b2534a4e0a17dccc6d8fcc8b315c63b548d464714"
+    }
+  ],
+  "input_sweep_summary": {
+    "path": "results/expanded_attention_sweep_summary.csv",
+    "sha256": "a4eaa7a493424eafd5d650a03a4ad8444c3257ddfd152ffdfb8b5b6c4038ce7c"
+  },
+  "input_configs": {
+    "path": "configs/attention_config_space.csv",
+    "sha256": "cb5e2d51e4660930b7718549de3f8c799fe92855f90ac9c25abaab7c8c03c261"
+  },
+  "latency_aggregation": "geometric mean of three per-run median latencies",
+  "split_count": 100,
+  "split_protocol": "repository original split plus deterministic unique random 10/6 splits; both sides must contain FP16 and BF16, head dimensions 64 and 128, causal and non-causal workloads, and at least two query-head counts",
+  "original_split_included": true,
+  "random_split_seed_start": 0,
+  "development_count": 10,
+  "held_out_count": 6,
+  "budgets": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "tree_max_depth": 2,
+  "tree_min_leaf": 2,
+  "random_search_note": "Random search is omitted because it does not train on the development partition; the earlier 100-seed held-out comparison remains its direct baseline.",
+  "splits": [
+    {
+      "split_id": "original",
+      "split_seed": null,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_001",
+      "split_seed": 0,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_002",
+      "split_seed": 1,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm128_bn32_w8_s3"
+    },
+    {
+      "split_id": "balanced_003",
+      "split_seed": 2,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_004",
+      "split_seed": 6,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_005",
+      "split_seed": 7,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_006",
+      "split_seed": 8,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_007",
+      "split_seed": 10,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_008",
+      "split_seed": 13,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_009",
+      "split_seed": 14,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm128_bn32_w8_s3"
+    },
+    {
+      "split_id": "balanced_010",
+      "split_seed": 15,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_011",
+      "split_seed": 17,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_012",
+      "split_seed": 23,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_013",
+      "split_seed": 24,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_014",
+      "split_seed": 25,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_015",
+      "split_seed": 26,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_016",
+      "split_seed": 28,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_017",
+      "split_seed": 29,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_018",
+      "split_seed": 30,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_019",
+      "split_seed": 31,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_020",
+      "split_seed": 32,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_021",
+      "split_seed": 34,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_022",
+      "split_seed": 35,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_023",
+      "split_seed": 36,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_024",
+      "split_seed": 37,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_025",
+      "split_seed": 39,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_026",
+      "split_seed": 40,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_027",
+      "split_seed": 41,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_028",
+      "split_seed": 42,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_029",
+      "split_seed": 44,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_030",
+      "split_seed": 47,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "best_fixed_config": "bm64_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_031",
+      "split_seed": 48,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_032",
+      "split_seed": 49,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_033",
+      "split_seed": 51,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_034",
+      "split_seed": 52,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_035",
+      "split_seed": 55,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_036",
+      "split_seed": 56,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_037",
+      "split_seed": 57,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_038",
+      "split_seed": 58,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_039",
+      "split_seed": 59,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_040",
+      "split_seed": 60,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_041",
+      "split_seed": 61,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_042",
+      "split_seed": 64,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_043",
+      "split_seed": 66,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_044",
+      "split_seed": 67,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_045",
+      "split_seed": 70,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_046",
+      "split_seed": 71,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_047",
+      "split_seed": 74,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_048",
+      "split_seed": 75,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_049",
+      "split_seed": 76,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_050",
+      "split_seed": 79,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_051",
+      "split_seed": 83,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_052",
+      "split_seed": 84,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_053",
+      "split_seed": 85,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_054",
+      "split_seed": 86,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_055",
+      "split_seed": 88,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_056",
+      "split_seed": 90,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "best_fixed_config": "bm64_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_057",
+      "split_seed": 91,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_058",
+      "split_seed": 92,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_059",
+      "split_seed": 97,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_060",
+      "split_seed": 98,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_061",
+      "split_seed": 99,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_062",
+      "split_seed": 100,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_063",
+      "split_seed": 101,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_064",
+      "split_seed": 102,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_065",
+      "split_seed": 104,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_066",
+      "split_seed": 105,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm128_bn32_w8_s3"
+    },
+    {
+      "split_id": "balanced_067",
+      "split_seed": 106,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_068",
+      "split_seed": 107,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_069",
+      "split_seed": 109,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_070",
+      "split_seed": 110,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_071",
+      "split_seed": 112,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_072",
+      "split_seed": 113,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_073",
+      "split_seed": 114,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_074",
+      "split_seed": 115,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm128_bn32_w8_s3"
+    },
+    {
+      "split_id": "balanced_075",
+      "split_seed": 117,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_076",
+      "split_seed": 119,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm128_bn32_w8_s3"
+    },
+    {
+      "split_id": "balanced_077",
+      "split_seed": 120,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_078",
+      "split_seed": 121,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_079",
+      "split_seed": 122,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_080",
+      "split_seed": 124,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_081",
+      "split_seed": 125,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_082",
+      "split_seed": 126,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_083",
+      "split_seed": 127,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_084",
+      "split_seed": 128,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_085",
+      "split_seed": 129,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_086",
+      "split_seed": 132,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_087",
+      "split_seed": 135,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_088",
+      "split_seed": 136,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_089",
+      "split_seed": 137,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_090",
+      "split_seed": 139,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_091",
+      "split_seed": 140,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_092",
+      "split_seed": 143,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_093",
+      "split_seed": 144,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_094",
+      "split_seed": 145,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_095",
+      "split_seed": 147,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_096",
+      "split_seed": 148,
+      "development_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn32_w4_s2"
+    },
+    {
+      "split_id": "balanced_097",
+      "split_seed": 149,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_098",
+      "split_seed": 152,
+      "development_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    },
+    {
+      "split_id": "balanced_099",
+      "split_seed": 153,
+      "development_workloads": [
+        "dense-prefill-s1024-h16-d128-fp16-noncausal",
+        "dense-prefill-s1024-h16-d64-bf16-causal",
+        "dense-prefill-s1536-h12-d128-fp16-causal",
+        "dense-prefill-s2048-h8-d64-fp16-causal",
+        "dense-prefill-s256-h8-d64-fp16-causal",
+        "dense-prefill-s512-h12-d128-fp16-noncausal",
+        "dense-prefill-s512-h16-d128-bf16-causal",
+        "dense-prefill-s512-h8-d64-fp16-causal",
+        "dense-qwen-shaped-proxy-s2048-bf16-causal",
+        "dense-qwen-shaped-proxy-s2048-fp16-causal"
+      ],
+      "held_out_workloads": [
+        "bert-large-shaped-s512-h16-d64-bf16-noncausal",
+        "dense-prefill-s1024-h12-d128-fp16-causal",
+        "dense-prefill-s1024-h8-d64-fp16-causal",
+        "dense-prefill-s2048-h8-d128-bf16-causal",
+        "dense-prefill-s512-h8-d128-fp16-causal",
+        "gpt2-shaped-prefill-s768-h12-d64-fp16-causal"
+      ],
+      "best_fixed_config": "bm32_bn64_w4_s2"
+    }
+  ]
+}

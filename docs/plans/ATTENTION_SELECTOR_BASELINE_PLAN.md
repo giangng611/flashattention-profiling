@@ -66,3 +66,17 @@ python src/evaluate_attention_config_selectors.py \
 - Deterministic top-1 labels agree across all three runs on only 4 of 16 workloads, or 5 of 16 after allowing exact ties. Treat exact winner prediction as secondary to oracle-relative top-k performance.
 - Compile/cache preparation is not a controlled cold-cache measurement.
 - Scaled tuning time is an estimate; only a future online selector run can provide direct selector wall time.
+
+## Split-sensitivity command
+
+This analysis runs locally without CUDA and includes the original split plus 99 deterministic balanced random splits:
+
+```bash
+.venv/bin/python src/evaluate_attention_selector_split_sensitivity.py \
+  --split-count 100 \
+  --held-out-count 6 \
+  --seed 0 \
+  --trials-output results/attention_selector_split_sensitivity_trials.csv \
+  --summary-output results/attention_selector_split_sensitivity_summary.csv \
+  --metadata-output results/attention_selector_split_sensitivity_metadata.json
+```

@@ -62,6 +62,21 @@ Top-1 fails on two splits because the single tree-selected candidate is invalid 
 
 Random search is not repeated in this analysis because it does not learn from the development partition. Its earlier 100-seed held-out result remains the direct random baseline.
 
+## Direct online tuning cost
+
+The robust tree top-4 policy and exhaustive 48-config control were also run directly on the six held-out workloads. Each mode ran in a separate Python process on the same RTX 3090, with the existing Triton disk cache retained. The measured wall time includes cache/compile preparation, correctness checking, and steady-state benchmarking for the candidate set; it excludes input construction and the PyTorch reference timing.
+
+| Method | Config attempts | Valid results | Resource errors | Correctness failures | Total tuning wall time | Direct geometric-mean oracle performance |
+|---|---:|---:|---:|---:|---:|---:|
+| Decision-tree ranker, top-4 | 24 | 24 | 0 | 0 | 1.987 s | 96.97% |
+| Exhaustive local oracle | 288 | 256 | 32 | 0 | 12.600 s | 100% |
+
+Top-4 reduced direct warm-cache tuning wall time by 84.23%, or 6.34x, while testing 4 rather than 48 configurations per workload. Its oracle-relative performance ranged from 93.30% to 98.58%; the worst direct regret was 7.19% on the dense Qwen-shaped proxy. Selector inference itself totaled 0.050 ms across all six workloads and was negligible relative to candidate measurement.
+
+The exhaustive search's additional tuning cost would be recovered only after approximately 93,777 to 672,104 invocations of the same workload, based on the directly measured latency advantage for each workload. This break-even calculation excludes application-level overhead and assumes that the selected configuration is reused without retuning.
+
+The first workload in each fresh process paid about one second of cache/compile preparation, so its top-4 wall-time saving was only 29.6%. The other five workloads saved 92.0-93.3%. This fixed startup effect makes the aggregate 84.23% saving more conservative than the simple 4/48 candidate ratio, but the result remains a warm-disk-cache measurement rather than controlled cold compilation.
+
 ## Kernel comparison
 
 The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported workloads in the original sweep. The selector experiment therefore answers a within-Triton configuration-selection question. It does not show that the current Triton kernel is generally faster than PyTorch.
@@ -73,8 +88,9 @@ The fastest Triton configuration beat PyTorch SDPA on only 3 of the 16 supported
 - The 10/6 split is small. The shallow tree may be sensitive to this particular split.
 - The split-sensitivity set is balanced by categorical coverage and therefore does not represent all possible partitions.
 - The aggregate geometric mean reduces single-run noise but does not resolve the large outlier noted above.
-- Estimated tuning time scales the original exhaustive wall time by candidate fraction. It is not a direct online-selector timing.
+- The direct online timing retains the existing Triton disk cache. It measures warm-cache selection in separate fresh Python processes, not controlled cold compilation.
+- Break-even counts assume repeated use of an identical workload and omit end-to-end application overhead.
 
 ## Interpretation
 
-The evidence supports continuing the selector direction and writing the first CURO proposal draft. The defensible claim is that a lightweight top-k ranker can reduce empirical search while retaining high oracle-relative performance across the tested balanced splits. Top-4 is the smallest tested budget that stays above 90% on every split; top-8 is the smallest that stays above 95% on every split. The current evidence does not support a universal performance guarantee, stable exact-oracle prediction, cross-GPU generalization, or Triton superiority over PyTorch SDPA.
+The evidence supports continuing the selector direction and writing the first CURO proposal draft. The defensible claim is that a lightweight top-k ranker can reduce empirical search while retaining high oracle-relative performance across the tested balanced splits. Top-4 is the smallest tested budget that stays above 90% on every split, and its direct run retained 96.97% of exhaustive performance while reducing warm-cache tuning time by 84.23%. Top-8 is the smallest tested budget that stays above 95% on every split. The current evidence does not support a universal performance guarantee, stable exact-oracle prediction, cold-cache savings, cross-GPU generalization, or Triton superiority over PyTorch SDPA.

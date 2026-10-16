@@ -98,6 +98,7 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Repeated the complete CUDA sweep twice with seeds 1 and 2, preserving detailed results, summaries, logs, and metadata.
 - Added reproducible ranking-stability analysis and reran selector baselines using the geometric mean of three per-run median latencies.
 - Evaluated selector sensitivity on the original split plus 99 deterministic balanced random development/held-out splits.
+- Measured the tree top-4 policy and the exhaustive 48-config control directly in separate CUDA processes, then added a provenance-preserving local comparison.
 
 ### Main findings
 
@@ -108,6 +109,9 @@ This file keeps a short record of what I did, what I observed, what did not work
 - Deterministic top-1 configs agreed across all three runs on only 4 of 16 workloads; accounting for exact ties raises common-oracle agreement to 5 of 16. The full rankings had mean pairwise Spearman correlation 0.836, so exact winner labels are noisy even when the broader ranking is fairly consistent.
 - On repeated aggregate latency, nearest-workload reuse reached 91.2% of oracle with one config. The decision-tree ranker reached 94.0% with top-2, 96.0% with top-4, and 98.0% with top-8.
 - Across 100 splits, tree top-2 reached at least 90% of oracle on 92% of splits. Top-4 stayed above 90% on every split, and top-8 stayed above 95% on every split.
+- In direct warm-cache measurement on the six held-out workloads, top-4 retained 96.97% geometric-mean oracle-relative performance and reduced tuning wall time from 12.600 seconds to 1.987 seconds, an 84.23% saving or 6.34x speedup.
+- Top-4 attempted 24 configurations without runtime or correctness failures. Exhaustive search attempted 288, including 32 expected shared-memory resource failures, and neither method had a correctness failure.
+- Exhaustive search would need roughly 93,777 to 672,104 repeated invocations of the same workload to recover its extra measured tuning cost through its lower selected-kernel latency.
 
 ### Unsuccessful attempts / limitations
 
@@ -117,11 +121,12 @@ This file keeps a short record of what I did, what I observed, what did not work
 - The two repetitions completed in about 24.2 seconds each because they reused the Triton disk cache; they cannot be used as cold compile-cost measurements.
 - One development workload has a 28.8% worst-run regret for the aggregate oracle, so aggregation does not eliminate every unstable case.
 - Tree top-1 selected an invalid configuration on two splits; small top-k candidate sets are more robust than predicting one configuration.
+- Direct timing retained the existing Triton disk cache. The first workload in each fresh process paid a large fixed cache/compile preparation cost, so this experiment does not establish cold-cache tuning cost.
 
 ### Interpretation
 
-- A small ranked candidate set remains close to the measured local oracle after repeated measurement and split changes. Exact top-1 prediction is not a reliable research target. Top-4 supports a more defensible 90% result than top-2, while top-8 supports 95% across the tested balanced splits. Claims remain limited to the current GPU, workloads, and candidate space.
+- A small ranked candidate set remains close to the measured local oracle after repeated measurement, split changes, and direct online testing. Exact top-1 prediction is not a reliable research target. Top-4 supports a more defensible 90% result than top-2 and now has a measured 84.23% warm-cache tuning-time reduction; top-8 supports 95% across the tested balanced splits. Claims remain limited to the current GPU, workloads, candidate space, and cache conditions.
 
 ### Next step
 
-- Measure direct online top-k selection cost on CUDA, then update the CURO draft with measured rather than scaled tuning time.
+- Investigate timing stability on representative near-tied workloads and, if another NVIDIA GPU is available, test whether the selector transfers across hardware.

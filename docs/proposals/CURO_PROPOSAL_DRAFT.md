@@ -24,6 +24,8 @@ Using the geometric mean of three per-run median latencies, a nearest-workload b
 
 To test split sensitivity, I evaluated the original partition and 99 deterministic balanced random 10/6 partitions. The two-candidate tree reached at least 90% of oracle on 92% of splits. Four candidates reached at least 90% on every split, and eight candidates reached at least 95% on every split. This strengthens the top-k direction but also shows that the original top-2 result is not a universal guarantee.
 
+I then measured the robust top-4 policy and exhaustive search directly on the six held-out workloads in separate fresh Python processes while retaining the Triton disk cache. Top-4 tested 24 configurations in total and exhaustive search tested 288. Top-4 retained 96.97% geometric-mean direct oracle performance while reducing tuning wall time from 12.600 seconds to 1.987 seconds, an 84.23% saving or 6.34x speedup. Top-4 had no runtime or correctness failures; exhaustive search encountered 32 expected shared-memory resource failures and no correctness failures. These are warm-cache results, not controlled cold-compilation measurements.
+
 These measurements are preliminary. They establish feasibility on one GPU and one workload split, not a general performance guarantee.
 
 ## Proposed approach
@@ -70,9 +72,9 @@ The initial success target is at least 90-95% of local-oracle performance while 
 
 ## Next experiments
 
-1. Measure the selector's direct online wall time instead of relying only on a scaled exhaustive-sweep estimate.
-2. Repeat representative unstable workloads and investigate whether longer timing windows improve ranking stability.
-3. Test whether the same selection policy transfers to another NVIDIA GPU if access is available.
+1. Repeat representative unstable workloads and investigate whether longer timing windows improve ranking stability.
+2. Test whether the same selection policy transfers to another NVIDIA GPU if access is available.
+3. Distinguish fixed process-startup overhead from per-candidate tuning cost and, if practical, add a controlled cold-cache experiment.
 4. Add GQA only after the dense-prefill prototype and claims are complete.
 
 ## Expected outcome
@@ -84,6 +86,7 @@ The project will deliver a reproducible attention configuration dataset, a compa
 - The current kernel is forward-only dense self-attention and is not a production FlashAttention implementation.
 - The current evidence uses one RTX 3090 and a small synthetic/model-shaped workload set.
 - Later repetitions reuse Triton disk-cache artifacts, so they do not measure cold compilation cost.
+- Direct online timing also retains the disk cache and includes a large first-workload preparation cost in each fresh process.
 - Near-tied configurations and short kernel runtimes make exact top-1 labels sensitive to measurement noise.
 - PyTorch SDPA is faster than the Triton local oracle on most current workloads; the research question concerns selection within this Triton kernel, not superiority over PyTorch.
 

@@ -65,7 +65,7 @@ python src/evaluate_attention_config_selectors.py \
 - The workload split is small and comes from one GPU.
 - Deterministic top-1 labels agree across all three runs on only 4 of 16 workloads, or 5 of 16 after allowing exact ties. Treat exact winner prediction as secondary to oracle-relative top-k performance.
 - Compile/cache preparation is not a controlled cold-cache measurement.
-- Scaled tuning time is an estimate; only a future online selector run can provide direct selector wall time.
+- Scaled tuning time remains an estimate for the offline tables. A separate direct warm-cache run measured top-4 and exhaustive wall time; it does not measure controlled cold compilation.
 
 ## Split-sensitivity command
 

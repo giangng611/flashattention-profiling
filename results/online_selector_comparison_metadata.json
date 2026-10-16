@@ -1,0 +1,37 @@
+{
+  "input_files": [
+    {
+      "path": "results/online_selector_top4_summary.csv",
+      "normalized_text_sha256": "4f9933ede8d3fe6a7382f75cfa2b6328b15752fe3c2ce9446a0942a8515ca562"
+    },
+    {
+      "path": "results/online_selector_top4_metadata.json",
+      "normalized_text_sha256": "812a8b1d26c5753f41293ce09e6c2469a3cde8e3afd0c9e8fd61cf5efcc2314c"
+    },
+    {
+      "path": "results/online_selector_exhaustive_summary.csv",
+      "normalized_text_sha256": "9ab4abe2e053eb98deb63385fb62603dece757be6fe50ed640cba8a928830493"
+    },
+    {
+      "path": "results/online_selector_exhaustive_metadata.json",
+      "normalized_text_sha256": "524a9bb3fd1f39777aec056e3ba558b8eba894a43ed247885ba5316fb7be3ff9"
+    }
+  ],
+  "workload_count": 6,
+  "top_k_budget": 4,
+  "exhaustive_budget": 48,
+  "top_k_total_tuning_wall_time_ms": 1986.945029348135,
+  "exhaustive_total_tuning_wall_time_ms": 12600.03530420363,
+  "total_tuning_wall_time_saved_pct": 84.23063918967553,
+  "total_tuning_wall_time_speedup": 6.341411120134196,
+  "direct_geomean_oracle_relative_performance": 0.9696556610286062,
+  "mean_direct_regret_pct": 3.148146741336714,
+  "worst_direct_regret_pct": 7.186859077045238,
+  "top_k_total_selector_inference_ms": 0.05002785474061966,
+  "top_k_total_runtime_errors": 0,
+  "exhaustive_total_runtime_errors": 32,
+  "total_correctness_failures": 0,
+  "cache_note": "This benchmark retains the existing Triton disk cache. Run tree and exhaustive modes in separate Python processes; results measure warm-cache online selection.",
+  "timing_scope": "tuning_wall_time_ms directly times compilation/cache preparation, correctness, and steady-state benchmarking for the selected candidate set; PyTorch reference timing and input creation are excluded",
+  "break_even_definition": "Additional exhaustive tuning wall time divided by the direct latency advantage of the exhaustive-selected configuration."
+}

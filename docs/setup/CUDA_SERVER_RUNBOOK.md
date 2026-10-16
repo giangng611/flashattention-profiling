@@ -211,3 +211,9 @@ Expected output for each command:
 - three data files plus one log per mode.
 
 These commands retain the existing Triton disk cache. They measure direct warm-cache online tuning cost, not cold compilation cost.
+
+The preserved RTX 3090 run completed all six held-out workloads in both modes. Top-4 attempted 24 candidates with no failures and took 1.987 seconds of total tuning wall time. Exhaustive search attempted 288 candidates, encountered 32 expected resource failures, and took 12.600 seconds. Both modes had zero correctness failures. The CPU-only comparison is reproduced with:
+
+```bash
+.venv/bin/python src/analyze_online_selector_timing.py
+```

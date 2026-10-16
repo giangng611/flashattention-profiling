@@ -37,6 +37,8 @@ results/**/*.json
 !results/online_selector_exhaustive_measurements.csv
 !results/online_selector_exhaustive_summary.csv
 !results/online_selector_exhaustive_metadata.json
+!results/online_selector_comparison.csv
+!results/online_selector_comparison_metadata.json
 !results/attention_sweep_repeat_config_stability.csv
 !results/attention_sweep_repeat_workload_stability.csv
 !results/attention_sweep_repeat_metadata.json

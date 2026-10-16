@@ -1,0 +1,82 @@
+{
+  "python_version": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "torch_version": "2.14.0+cu130",
+  "torch_cuda_version": "13.0",
+  "triton_version": "3.8.0",
+  "device_name": "NVIDIA GeForce RTX 3090",
+  "device_index": 0,
+  "compute_capability": "8.6",
+  "total_memory_bytes": 25288507392,
+  "warmup": 20,
+  "trials": 100,
+  "block_m": 128,
+  "block_n": 64,
+  "num_warps": 4,
+  "num_stages": 3,
+  "seed": 3,
+  "correctness_atol": 0.08,
+  "correctness_rtol": 0.02,
+  "workload_count": 6,
+  "compile_timing_note": "compile_or_cache_prepare_ms times Triton JITFunction.warmup, which does not launch the kernel. It can include an in-memory or disk-cache lookup and is not guaranteed cold compilation time.",
+  "note": "Forward-only Triton fused-attention benchmark. Initial kernel supports self-attention with q_heads == kv_heads.",
+  "selection_mode": "tree",
+  "selection_budget": 4,
+  "candidate_plan": {
+    "bert-large-shaped-s512-h16-d64-bf16-noncausal": [
+      "bm128_bn64_w4_s3",
+      "bm128_bn32_w8_s3",
+      "bm32_bn64_w4_s2",
+      "bm64_bn32_w4_s2"
+    ],
+    "dense-prefill-s1024-h16-d128-fp16-noncausal": [
+      "bm32_bn32_w4_s2",
+      "bm32_bn64_w4_s2",
+      "bm32_bn32_w4_s3",
+      "bm128_bn32_w8_s3"
+    ],
+    "dense-prefill-s1536-h12-d128-fp16-causal": [
+      "bm32_bn32_w4_s2",
+      "bm32_bn64_w4_s2",
+      "bm32_bn32_w4_s3",
+      "bm128_bn32_w8_s3"
+    ],
+    "dense-prefill-s2048-h8-d128-bf16-causal": [
+      "bm128_bn64_w4_s3",
+      "bm128_bn32_w8_s3",
+      "bm32_bn64_w4_s2",
+      "bm64_bn32_w4_s2"
+    ],
+    "dense-qwen-shaped-proxy-s2048-bf16-causal": [
+      "bm128_bn64_w4_s3",
+      "bm128_bn32_w8_s3",
+      "bm32_bn64_w4_s2",
+      "bm64_bn32_w4_s2"
+    ],
+    "gpt2-shaped-prefill-s768-h12-d64-fp16-causal": [
+      "bm32_bn32_w4_s2",
+      "bm32_bn64_w4_s2",
+      "bm32_bn32_w4_s3",
+      "bm128_bn32_w8_s3"
+    ]
+  },
+  "aggregate_sweeps": [
+    {
+      "path": "results/expanded_attention_sweep.csv",
+      "sha256": "ebedc543dd60f83018dacddcb3a2c60250c30a38cbb221a138209967554229a5"
+    },
+    {
+      "path": "results/expanded_attention_sweep_seed1.csv",
+      "sha256": "5d116559e015da554e77cf9fc247aae92dfa2886e3c65f4952fcb64420fa46c1"
+    },
+    {
+      "path": "results/expanded_attention_sweep_seed2.csv",
+      "sha256": "c414495d5d3a3282126be1c835f9126bc193feaad707da1e7e7a45eef8f2f797"
+    }
+  ],
+  "config_file": "configs/attention_config_space.csv",
+  "config_file_sha256": "cb5e2d51e4660930b7718549de3f8c799fe92855f90ac9c25abaab7c8c03c261",
+  "workload_file": "workloads/expanded_dense_prefill_workloads.csv",
+  "workload_file_sha256": "055c6fa725ca913e42c0fcdf24a93ab7605774d4687fc0f11840086f18c135a4",
+  "timing_scope": "tuning_wall_time_ms directly times compilation/cache preparation, correctness, and steady-state benchmarking for the selected candidate set; PyTorch reference timing and input creation are excluded",
+  "cache_note": "This benchmark retains the existing Triton disk cache. Run tree and exhaustive modes in separate Python processes; results measure warm-cache online selection."
+}
